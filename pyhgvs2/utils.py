@@ -2,7 +2,7 @@
 Helper functions.
 """
 
-from typing import Generator, List, TextIO, Tuple, TypedDict, cast
+from typing import Generator, List, TextIO, Tuple, TypedDict
 
 from .models import Exon, Position, Transcript
 
@@ -105,7 +105,7 @@ def make_transcript(transcript_json: RefGeneRecord) -> Transcript:
 
     exons = transcript_json["exons"]
     if not transcript.tx_position.is_forward_strand:
-        exons = cast(list[tuple[int, int]], reversed(exons))
+        exons = list(reversed(exons))
 
     for exon_number, (exon_start, exon_end) in enumerate(exons, 1):
         transcript.exons.append(
