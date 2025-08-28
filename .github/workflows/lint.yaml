@@ -15,7 +15,17 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+      - name: Check if version was bumped
+        run: |
+          if git diff origin/master -- pyproject.toml | grep -q "version"; then
+            echo "Version was changed in pyproject.toml"
+          else
+            echo "Remember to bump version in pyproject.toml"
+            exit 1
+          fi
       - name: Install uv, set python version
         uses: astral-sh/setup-uv@v5
         with:
@@ -28,4 +38,3 @@ jobs:
         run: uv sync --locked --all-extras --dev
       - name: Run tests
         run: uv run pytest pyhgvs2/tests
-
