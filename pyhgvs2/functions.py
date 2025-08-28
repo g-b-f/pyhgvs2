@@ -233,27 +233,31 @@ def variant_to_hgvs_name(
     else:
         # Use cDNA coordinates.
         hgvs.kind = "c"
-        is_single_base_indel = (mutation_type == "ins" and len(alt) == 1) or (
-            mutation_type in ("del", "delins", "dup") and len(ref) == 1
-        )
-
-        if mutation_type == ">" or is_single_base_indel:
-            # Use a single coordinate.
-            hgvs.cdna_start = genomic_to_cdna_coord(transcript, offset)
-            hgvs.cdna_end = hgvs.cdna_start
-        else:
-            # Use a range of coordinates.
-            if mutation_type == "ins":
-                # Insert uses coordinates around the insert point.
-                offset_start = offset - 1
-                offset_end = offset
-            else:
-                offset_start = offset
-                offset_end = offset + len(ref) - 1
+        if mutation_type == "ins":
+            # Always use a range for insertions (HGVS: c.306_307insG)
+            offset_start = offset - 1
+            offset_end = offset
             if transcript.strand == "-":
                 offset_start, offset_end = offset_end, offset_start
             hgvs.cdna_start = genomic_to_cdna_coord(transcript, offset_start)
             hgvs.cdna_end = genomic_to_cdna_coord(transcript, offset_end)
+        else:
+            is_single_base_indel = (
+                (mutation_type in ("del", "delins", "dup") and len(ref) == 1)
+                or (mutation_type == ">" and len(ref) == 1)
+            )
+            if mutation_type == ">" or is_single_base_indel:
+                # Use a single coordinate.
+                hgvs.cdna_start = genomic_to_cdna_coord(transcript, offset)
+                hgvs.cdna_end = hgvs.cdna_start
+            else:
+                # Use a range of coordinates.
+                offset_start = offset
+                offset_end = offset + len(ref) - 1
+                if transcript.strand == "-":
+                    offset_start, offset_end = offset_end, offset_start
+                hgvs.cdna_start = genomic_to_cdna_coord(transcript, offset_start)
+                hgvs.cdna_end = genomic_to_cdna_coord(transcript, offset_end)
 
     # Populate prefix.
     if transcript:

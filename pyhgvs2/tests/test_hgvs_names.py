@@ -864,11 +864,6 @@ _name_variants = [
 ]
 
 
-_name_variants_counsyl = [
-    ("NM_000016.4:c.307insG", ("chr1", 76199232, "T", "TG"), True, True),
-]
-
-
 # Mock refGene transcripts.
 _refgene = "\n".join(
     [

@@ -500,7 +500,6 @@ class HGVSName:
                     end -= 1
                 else:
                     end = start - 1
-
             elif self.mutation_type == "dup":
                 end = start - 1
 
