@@ -3,10 +3,10 @@ import os
 from dataclasses import dataclass
 from typing import Any, Optional, TextIO, Union, cast
 
-from ..variants import revcomp
-
 # try:
 from pyfaidx import Fasta as SequenceFileDB
+
+from ..variants import revcomp
 
 # Allow pyflakes to ignore redefinition in except clause.
 # SequenceFileDB

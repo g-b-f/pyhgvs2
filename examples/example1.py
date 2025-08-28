@@ -27,10 +27,10 @@ The following output should be displayed:
 
 """
 
-import pyhgvs2.utils as hgvs_utils
 from pyfaidx import Fasta
 
 import pyhgvs2 as hgvs
+import pyhgvs2.utils as hgvs_utils
 
 # Read genome sequence using pyfaidx.
 genome = Fasta("/tmp/hg19.fa")

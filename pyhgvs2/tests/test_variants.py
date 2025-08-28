@@ -1,8 +1,8 @@
+from typing import Literal
 from unittest import TestCase
 
 from ..variants import normalize_variant
 from .genome import MockGenomeTestFile
-from typing import Literal
 
 _genome_seq = dict(
     [

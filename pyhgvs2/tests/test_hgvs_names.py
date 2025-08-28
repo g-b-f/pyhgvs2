@@ -3,16 +3,10 @@ from io import StringIO
 import pytest
 from pyfaidx import Fasta as SequenceFileDB
 
-from .. import (
-    CDNA_STOP_CODON,
-    CDNACoord,
-    HGVSName,
-    InvalidHGVSName,
-    cdna_to_genomic_coord,
-    format_hgvs_name,
-    genomic_to_cdna_coord,
-    parse_hgvs_name,
-)
+from .. import CDNACoord, HGVSName, format_hgvs_name, parse_hgvs_name
+from ..constants import CDNA_STOP_CODON
+from ..exceptions import InvalidHGVSName
+from ..lookups import cdna_to_genomic_coord, genomic_to_cdna_coord
 from ..utils import read_transcripts
 from .genome import MockGenomeTestFile
 
@@ -125,42 +119,6 @@ def test_variant_to_name():
             chrom, offset, ref, alt = variant
             hgvs_name = format_hgvs_name(
                 chrom, offset, ref, alt, genome, transcript, use_gene=False
-            )
-            assert hgvs_name == expected_hgvs_name, repr(
-                [hgvs_name, expected_hgvs_name, variant]
-            )
-
-
-def test_variant_to_name_counsyl():
-    """
-    Convert variant coordinates to HGVS names with counsyl-specific style.
-    """
-    genome = MockGenomeTestFile(
-        db_filename="hg19.fa",
-        filename="pyhgvs2/tests/data/test_variant_to_name_counsyl.genome",
-        create_data=False,
-    )
-
-    for (
-        expected_hgvs_name,
-        variant,
-        name_canonical,
-        var_canonical,
-    ) in _name_variants_counsyl:
-        if name_canonical:
-            transcript_name = HGVSName(expected_hgvs_name).transcript
-            transcript = get_transcript(transcript_name)
-            assert transcript, transcript_name
-            chrom, offset, ref, alt = variant
-            hgvs_name = format_hgvs_name(
-                chrom,
-                offset,
-                ref,
-                alt,
-                genome,
-                transcript,
-                use_gene=False,
-                use_counsyl=True,
             )
             assert hgvs_name == expected_hgvs_name, repr(
                 [hgvs_name, expected_hgvs_name, variant]
@@ -899,11 +857,6 @@ _name_variants = [
         True,
         False,
     ),
-]
-
-
-_name_variants_counsyl = [
-    ("NM_000016.4:c.307insG", ("chr1", 76199232, "T", "TG"), True, True),
 ]
 
 

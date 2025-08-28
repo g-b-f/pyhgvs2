@@ -2,12 +2,25 @@
 Helper functions.
 """
 
-from typing import Mapping, TextIO
+from typing import Generator, List, TextIO, Tuple, TypedDict
 
 from .models import Exon, Position, Transcript
 
 
-def read_refgene(infile: TextIO):
+class RefGeneRecord(TypedDict):
+    chrom: str
+    start: int
+    end: int
+    id: str
+    strand: str
+    cds_start: int
+    cds_end: int
+    gene_name: str
+    exons: List[Tuple[int, int]]
+    exon_frames: List[int]
+
+
+def read_refgene(infile: TextIO) -> Generator[RefGeneRecord, None, None]:
     """
     Iterate through a refGene file.
 
@@ -61,7 +74,7 @@ def read_refgene(infile: TextIO):
         }
 
 
-def make_transcript(transcript_json: Mapping) -> Transcript:
+def make_transcript(transcript_json: RefGeneRecord) -> Transcript:
     """
     Make a Transcript form a JSON object.
     """
@@ -92,7 +105,7 @@ def make_transcript(transcript_json: Mapping) -> Transcript:
 
     exons = transcript_json["exons"]
     if not transcript.tx_position.is_forward_strand:
-        exons = reversed(exons)
+        exons = list(reversed(exons))
 
     for exon_number, (exon_start, exon_end) in enumerate(exons, 1):
         transcript.exons.append(
@@ -111,12 +124,13 @@ def make_transcript(transcript_json: Mapping) -> Transcript:
     return transcript
 
 
-def read_transcripts(refgene_file) -> dict[str, Transcript]:
+def read_transcripts(refgene_file: TextIO) -> dict[str, Transcript]:
     """
     Read all transcripts in a RefGene file.
     """
     transcripts = {}
-    for trans in (make_transcript(record) for record in read_refgene(refgene_file)):
+    for record in read_refgene(refgene_file):
+        trans = make_transcript(record)
         transcripts[trans.name] = trans
         transcripts[trans.full_name] = trans
 
