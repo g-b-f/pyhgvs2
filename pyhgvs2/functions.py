@@ -243,9 +243,8 @@ def variant_to_hgvs_name(
             hgvs.cdna_end = genomic_to_cdna_coord(transcript, offset_end)
         else:
             is_single_base_indel = (
-                (mutation_type in ("del", "delins", "dup") and len(ref) == 1)
-                or (mutation_type == ">" and len(ref) == 1)
-            )
+                mutation_type in ("del", "delins", "dup") and len(ref) == 1
+            ) or mutation_type == ">"
             if mutation_type == ">" or is_single_base_indel:
                 # Use a single coordinate.
                 hgvs.cdna_start = genomic_to_cdna_coord(transcript, offset)

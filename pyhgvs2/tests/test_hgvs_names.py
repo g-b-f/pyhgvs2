@@ -3,15 +3,10 @@ from io import StringIO
 import pytest
 from pyfaidx import Fasta as SequenceFileDB
 
-from .. import (
-    CDNACoord,
-    HGVSName,
-    format_hgvs_name,
-    parse_hgvs_name,
-)
-from ..lookups import cdna_to_genomic_coord, genomic_to_cdna_coord
-from ..exceptions import InvalidHGVSName
+from .. import CDNACoord, HGVSName, format_hgvs_name, parse_hgvs_name
 from ..constants import CDNA_STOP_CODON
+from ..exceptions import InvalidHGVSName
+from ..lookups import cdna_to_genomic_coord, genomic_to_cdna_coord
 from ..utils import read_transcripts
 from .genome import MockGenomeTestFile
 
@@ -128,6 +123,7 @@ def test_variant_to_name():
             assert hgvs_name == expected_hgvs_name, repr(
                 [hgvs_name, expected_hgvs_name, variant]
             )
+
 
 def test_name_to_variant_refseqs():
     """

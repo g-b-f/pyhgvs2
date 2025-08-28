@@ -2,8 +2,8 @@
 Given X, get Y
 """
 
-from typing import List, Optional, Tuple, cast
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, List, Optional, Tuple, cast
+
 if TYPE_CHECKING:
     from .hgvsg_name import HGVSName
 
