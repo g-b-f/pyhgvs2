@@ -3,7 +3,7 @@ Helper functions.
 """
 
 from collections.abc import Generator
-from typing import List, TextIO, Tuple, TypedDict
+from typing import TextIO, TypedDict
 
 from .models import Exon, Position, Transcript
 
@@ -17,8 +17,8 @@ class RefGeneRecord(TypedDict):
     cds_start: int
     cds_end: int
     gene_name: str
-    exons: List[Tuple[int, int]]
-    exon_frames: List[int]
+    exons: list[tuple[int, int]]
+    exon_frames: list[int]
 
 
 def read_refgene(infile: TextIO) -> Generator[RefGeneRecord, None, None]:

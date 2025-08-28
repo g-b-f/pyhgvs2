@@ -42,7 +42,7 @@ def test_name_to_variant_long():
 
     errors = []
     with open("pyhgvs2/tests/data/test_hgvs.txt") as infile:
-        for i, line in enumerate(infile):
+        for _i, line in enumerate(infile):
             row = line.rstrip().split("\t")
             chrom, offset, ref, alt, hgvs_name = row[:5]
             offset = int(offset)  # type:ignore[assignment]

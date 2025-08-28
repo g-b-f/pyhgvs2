@@ -62,7 +62,7 @@ def test_parse_name():
     """
     Parsing HGVS names.
     """
-    for name, formatable, expected in _parse_names:
+    for name, _formatable, expected in _parse_names:
         hgvs_parsed = HGVSName(name)
         for key, value in expected.items():
             assert getattr(hgvs_parsed, key) == value, (
@@ -93,7 +93,7 @@ def test_name_to_variant():
         create_data=False,
     )
 
-    for hgvs_name, variant, name_canonical, var_canonical in _name_variants:
+    for hgvs_name, variant, _name_canonical, var_canonical in _name_variants:
         if var_canonical:
             hgvs_variant = parse_hgvs_name(
                 hgvs_name, genome, get_transcript=get_transcript
@@ -111,7 +111,7 @@ def test_variant_to_name():
         create_data=False,
     )
 
-    for expected_hgvs_name, variant, name_canonical, var_canonical in _name_variants:
+    for expected_hgvs_name, variant, name_canonical, _var_canonical in _name_variants:
         if name_canonical:
             transcript_name = HGVSName(expected_hgvs_name).transcript
             transcript = get_transcript(transcript_name)
@@ -131,7 +131,7 @@ def test_name_to_variant_refseqs():
     """
     genome = SequenceFileDB("pyhgvs2/tests/data/test_refseqs.fa")
 
-    for hgvs_name, variant, name_canonical, var_canonical in _name_variants:
+    for hgvs_name, variant, _name_canonical, var_canonical in _name_variants:
         if not var_canonical or "NM_" not in hgvs_name:
             # Only test transcript HGVS names.
             continue

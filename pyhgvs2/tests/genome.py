@@ -114,7 +114,7 @@ class MockGenome:
                 else:
                     raise MockGenomeError(
                         f"Sequence not in test data: {chrom}:{start}-{end}"
-                    )
+                    ) from None
 
     def read(self, filename: Union[str, TextIO]):
         """Read a sequence lookup table from a file.
