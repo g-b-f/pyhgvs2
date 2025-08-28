@@ -2,7 +2,8 @@
 Helper functions.
 """
 
-from typing import Generator, List, TextIO, Tuple, TypedDict
+from collections.abc import Generator
+from typing import List, TextIO, Tuple, TypedDict
 
 from .models import Exon, Position, Transcript
 

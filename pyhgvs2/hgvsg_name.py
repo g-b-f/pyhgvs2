@@ -22,21 +22,21 @@ class HGVSName:
 
     def __init__(
         self,
-        name="",
-        prefix="",
-        chrom="",
-        transcript="",
-        gene="",
-        kind="",
-        mutation_type=None,
-        start=0,
-        end=0,
-        ref_allele="",
-        ref2_allele="",
-        alt_allele="",
-        cdna_start=None,
-        cdna_end=None,
-        pep_extra="",
+        name: str = "",
+        prefix: str = "",
+        chrom: str = "",
+        transcript: str = "",
+        gene: str = "",
+        kind: str = "",
+        mutation_type: Optional[str] = None,
+        start: int = 0,
+        end: int = 0,
+        ref_allele: str = "",
+        ref2_allele: str = "",
+        alt_allele: str = "",
+        cdna_start: Optional[CDNACoord] = None,
+        cdna_end: Optional[CDNACoord] = None,
+        pep_extra: str = "",
     ):
 
         # Full HGVS name.
@@ -239,14 +239,14 @@ class HGVSName:
                 # Parse alleles.
                 self.ref_allele = groups.get("ref", "")
                 if groups.get("ref2"):
-                    self.ref2_allele = groups.get("ref2")
+                    self.ref2_allele = groups.get("ref2", "")
                     self.alt_allele = groups.get("alt", "")
                 else:
                     # If alt is not given, assume matching with ref
                     self.ref2_allele = self.ref_allele
                     self.alt_allele = groups.get("alt", self.ref_allele)
 
-                self.pep_extra = groups.get("extra")
+                self.pep_extra = groups.get("extra", "")
                 return
 
         raise NonMatchingAlleleError(details, "protein")

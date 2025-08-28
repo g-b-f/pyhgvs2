@@ -2,7 +2,7 @@
 Given X, get Y
 """
 
-from typing import TYPE_CHECKING, List, Optional, Tuple, cast
+from typing import TYPE_CHECKING, Optional, cast
 
 if TYPE_CHECKING:
     from .hgvsg_name import HGVSName
@@ -31,9 +31,9 @@ REFSEQ_PREFIXES = [
     ("ZP_", "Protein", "Predicted model, annotated on NZ_ genomic records"),
 ]
 
-REFSEQ_PREFIX_LOOKUP = dict(
-    (prefix, (kind, description)) for prefix, kind, description in REFSEQ_PREFIXES
-)
+REFSEQ_PREFIX_LOOKUP = {
+    prefix: (kind, description) for prefix, kind, description in REFSEQ_PREFIXES
+}
 
 
 def get_refseq_type(name: str) -> Optional[str]:
@@ -44,7 +44,7 @@ def get_refseq_type(name: str) -> Optional[str]:
     return REFSEQ_PREFIX_LOOKUP.get(prefix, (None, ""))[0]
 
 
-def get_exons(transcript: Transcript) -> List[Exon]:
+def get_exons(transcript: Transcript) -> list[Exon]:
     """Yield exons in coding order."""
     transcript_strand = transcript.tx_position.is_forward_strand
     if hasattr(transcript.exons, "select_related"):
@@ -189,7 +189,7 @@ def genomic_to_cdna_coord(
 ) -> Optional[CDNACoord]:
     """Convert a genomic coordinate to a cDNA coordinate and offset."""
     exons = cast(
-        List[BED6Interval], [exon.get_as_interval() for exon in get_exons(transcript)]
+        list[BED6Interval], [exon.get_as_interval() for exon in get_exons(transcript)]
     )
 
     if len(exons) == 0:
@@ -256,8 +256,8 @@ def genomic_to_cdna_coord(
             cdna_coord.coord -= 1
         else:
             # Detect if position is after stop_codon.
-            exons = get_exons(transcript)
-            stop_codon = find_stop_codon(exons, transcript.cds_position)
+            transcript_exons: list[Exon] = get_exons(transcript)
+            stop_codon = find_stop_codon(transcript_exons, transcript.cds_position)
             stop_codon -= utr5p
             if (
                 cdna_coord.coord > stop_codon
@@ -300,12 +300,12 @@ def get_allele(hgvs, genome, transcript=None):
     return chrom, start, end, ref, alt
 
 
-_indel_mutation_types = set(["ins", "del", "dup", "delins"])
+_indel_mutation_types = {"ins", "del", "dup", "delins"}
 
 
 def get_vcf_allele(
     hgvs: "HGVSName", genome: GenomeType, transcript: Optional[Transcript] = None
-) -> Tuple[str, int, int, str, str]:
+) -> tuple[str, int, int, str, str]:
     """Get an VCF-style allele from a HGVSName, a genome, and a transcript."""
     chrom, start, end = hgvs.get_vcf_coords(transcript)
     _, alt = hgvs.get_ref_alt(

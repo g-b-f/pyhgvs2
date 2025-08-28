@@ -3,12 +3,22 @@ Models for representing genomic elements.
 """
 
 import re
+from collections.abc import Mapping
 from dataclasses import dataclass
-from typing import Mapping, Optional
+from typing import Any, Optional, Protocol, Union
 
 from .constants import CDNA_START_CODON, CDNA_STOP_CODON
 
-GenomeType = Mapping[str, str]
+
+class GenomeProtocol(Protocol):
+    """Protocol for genome-like objects that support sequence access."""
+
+    def __getitem__(self, key: str) -> Any:
+        """Return chromosome by name."""
+        ...
+
+
+GenomeType = Union[Mapping[str, str], GenomeProtocol]
 
 
 @dataclass

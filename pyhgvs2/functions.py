@@ -1,8 +1,8 @@
-from typing import Callable, Literal, Optional, Tuple
+from typing import Callable, Literal, Optional
 
 from .hgvsg_name import HGVSName
 from .lookups import genomic_to_cdna_coord, get_vcf_allele
-from .models import GenomeSubset, GenomeType, Transcript
+from .models import CDNACoord, GenomeType, Transcript
 from .variants import justify_indel, normalize_variant, revcomp
 
 
@@ -64,7 +64,7 @@ def hgvs_justify_dup(
 
 def hgvs_justify_indel(
     chrom: str, offset: int, ref: str, alt: str, strand: str, genome: GenomeType
-) -> Tuple[str, int, str, str]:
+) -> tuple[str, int, str, str]:
     """
     3' justify an indel according to the HGVS standard.
 
@@ -175,16 +175,6 @@ def parse_hgvs_name(
         if not transcript:
             raise ValueError("transcript is required")
 
-    if transcript and hgvs.transcript in genome:
-        # Reference sequence is directly known, use it.
-        genome = GenomeSubset(
-            genome,
-            transcript.tx_position.chrom,
-            transcript.tx_position.chrom_start,
-            transcript.tx_position.chrom_stop,
-            hgvs.transcript,
-        )
-
     chrom, start, end, ref, alt = get_vcf_allele(hgvs, genome, transcript)
     if normalize:
         chrom, start, ref, [alt] = normalize_variant(
@@ -200,7 +190,7 @@ def variant_to_hgvs_name(
     alt: str,
     genome: GenomeType,
     transcript: Transcript,
-    max_allele_length=4,
+    max_allele_length: int = 4,
 ) -> HGVSName:
     """
     Populate a HGVSName from a genomic coordinate.
@@ -239,15 +229,15 @@ def variant_to_hgvs_name(
             offset_end = offset
             if transcript.strand == "-":
                 offset_start, offset_end = offset_end, offset_start
-            hgvs.cdna_start = genomic_to_cdna_coord(transcript, offset_start)
-            hgvs.cdna_end = genomic_to_cdna_coord(transcript, offset_end)
+            hgvs.cdna_start = genomic_to_cdna_coord(transcript, offset_start) or CDNACoord()
+            hgvs.cdna_end = genomic_to_cdna_coord(transcript, offset_end) or CDNACoord()
         else:
             is_single_base_indel = (
                 mutation_type in ("del", "delins", "dup") and len(ref) == 1
             ) or mutation_type == ">"
             if mutation_type == ">" or is_single_base_indel:
                 # Use a single coordinate.
-                hgvs.cdna_start = genomic_to_cdna_coord(transcript, offset)
+                hgvs.cdna_start = genomic_to_cdna_coord(transcript, offset) or CDNACoord()
                 hgvs.cdna_end = hgvs.cdna_start
             else:
                 # Use a range of coordinates.
@@ -255,8 +245,8 @@ def variant_to_hgvs_name(
                 offset_end = offset + len(ref) - 1
                 if transcript.strand == "-":
                     offset_start, offset_end = offset_end, offset_start
-                hgvs.cdna_start = genomic_to_cdna_coord(transcript, offset_start)
-                hgvs.cdna_end = genomic_to_cdna_coord(transcript, offset_end)
+                hgvs.cdna_start = genomic_to_cdna_coord(transcript, offset_start) or CDNACoord()
+                hgvs.cdna_end = genomic_to_cdna_coord(transcript, offset_end) or CDNACoord()
 
     # Populate prefix.
     if transcript:
