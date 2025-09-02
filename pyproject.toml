@@ -76,3 +76,16 @@ addopts = [
     "--strict-markers",
     "--disable-warnings",
 ]
+markers = [
+    "benchmark: marks tests as benchmark tests",
+]
+
+# Benchmark configuration
+[tool.pytest.benchmark]
+group_by = "name"
+sort = "mean"
+min_rounds = 5
+max_time = 2.0
+timer = "time.perf_counter"
+disable_gc = false
+warmup = false
