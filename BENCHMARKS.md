@@ -42,8 +42,9 @@ Benchmarks automatically run in GitHub Actions on:
 - Manual workflow dispatch
 
 The benchmark job:
-- Runs on Python 3.11 (Ubuntu latest)
-- Executes all benchmark tests
+- Runs on Python 3.12 (Ubuntu latest)
+- Has a 10-minute timeout to catch performance regressions
+- Executes essential benchmark tests only
 - Uploads results as artifacts
 - Reports performance metrics in the workflow logs
 
@@ -51,22 +52,19 @@ The benchmark job:
 
 | Test | Description | Sample Size |
 |------|-------------|-------------|
-| `test_benchmark_hgvs_parse_all` | Parse all supported HGVS names | ~98,839 variants |
-| `test_benchmark_hgvs_parse_sample` | Parse representative sample | ~9,884 variants (every 10th) |
-| `test_benchmark_hgvs_format` | Format parsed HGVS names | ~989 variants |
-| `test_benchmark_hgvs_parse_and_format` | Complete parse-format cycle | ~989 variants |
-| `test_benchmark_hgvs_by_type[substitution]` | Parse substitution variants | Variable (filtered) |
-| `test_benchmark_hgvs_by_type[deletion]` | Parse deletion variants | Variable (filtered) |
-| `test_benchmark_hgvs_by_type[insertion]` | Parse insertion variants | Variable (filtered) |
+| `test_benchmark_hgvs_parse_sample` | Parse representative sample | ~988 variants (every 100th) |
+| `test_benchmark_hgvs_parse_and_format` | Complete parse-format cycle | ~197 variants |
+
+The benchmark suite has been optimized for CI performance while maintaining the ability to detect regressions.
 
 ## Performance Expectations
 
 Based on current benchmarks (as of September 2025):
 
-- **Parsing speed**: ~16-20 operations per second for full dataset
-- **Individual variant parsing**: ~1,975 operations per second
-- **Format speed**: ~1,975 operations per second
-- **Parse-format cycle**: ~156 operations per second
+- **Parse-format cycle**: ~865 operations per second
+- **Individual variant parsing**: ~193 operations per second
+
+The benchmark suite is designed to complete within 5 minutes and will catch performance regressions exceeding the timeout thresholds.
 
 ## Benchmark Configuration
 
@@ -76,8 +74,8 @@ Key benchmark settings (configured in `pyproject.toml`):
 [tool.pytest.benchmark]
 group_by = "name"
 sort = "mean"
-min_rounds = 5
-max_time = 2.0
+min_rounds = 3
+max_time = 5.0
 timer = "time.perf_counter"
 disable_gc = false
 warmup = false

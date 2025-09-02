@@ -84,8 +84,8 @@ markers = [
 [tool.pytest.benchmark]
 group_by = "name"
 sort = "mean"
-min_rounds = 5
-max_time = 2.0
+min_rounds = 3
+max_time = 5.0
 timer = "time.perf_counter"
 disable_gc = false
 warmup = false

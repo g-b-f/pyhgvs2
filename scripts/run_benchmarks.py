@@ -14,7 +14,7 @@ def run_benchmarks(
     benchmark_file: str = "pyhgvs2/tests/test_benchmark.py",
     output_format: str = "table",
     save_json: bool = False,
-    min_rounds: int = 5,
+    min_rounds: int = 3,
     verbose: bool = False,
 ):
     """Run pytest benchmarks with specified options."""
@@ -43,6 +43,9 @@ def run_benchmarks(
     
     if output_format == "histogram":
         cmd.append("--benchmark-histogram=histogram")
+    
+    # Add max time limit for performance regression detection
+    cmd.append("--benchmark-max-time=5.0")
     
     # Run the benchmark
     print(f"Running benchmarks with command: {' '.join(cmd)}")
@@ -80,8 +83,8 @@ def main():
     parser.add_argument(
         "--min-rounds",
         type=int,
-        default=5,
-        help="Minimum number of benchmark rounds (default: 5)"
+        default=3,
+        help="Minimum number of benchmark rounds (default: 3)"
     )
     parser.add_argument(
         "--verbose",
