@@ -33,3 +33,16 @@ extend-include = ["bin/"]
 
 [tool.pytest.ini_options]
 filterwarnings = ["error"]
+markers = [
+    "benchmark: marks tests as benchmark tests",
+]
+
+# Benchmark configuration
+[tool.pytest.benchmark]
+group_by = "name"
+sort = "mean"
+min_rounds = 3
+max_time = 5.0
+timer = "time.perf_counter"
+disable_gc = false
+warmup = false
