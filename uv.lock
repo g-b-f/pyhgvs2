@@ -126,14 +126,13 @@ wheels = [
 
 [[package]]
 name = "pyhgvs2"
-version = "3.0.0"
+version = "3.0.1"
 source = { virtual = "." }
 
 [package.dev-dependencies]
 dev = [
     { name = "mypy" },
     { name = "pyfaidx" },
-    { name = "pytest" },
     { name = "pytest-benchmark" },
     { name = "pytest-mock" },
     { name = "ruff" },
@@ -145,7 +144,6 @@ dev = [
 dev = [
     { name = "mypy", specifier = "==1.15.*" },
     { name = "pyfaidx", specifier = "==0.8.1.*" },
-    { name = "pytest", specifier = ">=7.0.0" },
     { name = "pytest-benchmark", specifier = ">=5.1.0" },
     { name = "pytest-mock", specifier = "==3.14.*" },
     { name = "ruff", specifier = "==0.11.*" },

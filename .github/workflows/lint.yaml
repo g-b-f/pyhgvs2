@@ -64,19 +64,34 @@ jobs:
       - name: Run benchmarks
         timeout-minutes: 8
         run: >
-          uv run pytest pyhgvs2/tests/test_benchmark.py
-            --benchmark-only
-            --benchmark-verbose
-            --benchmark-sort=name
-            --benchmark-min-rounds=3
-            --benchmark-max-time=5.0
+          uv run pytest pyhgvs2/tests/test_benchmark.py \
+            --benchmark-only \
+            --benchmark-verbose \
+            --benchmark-sort=name \
+            --benchmark-min-rounds=3 \
+            --benchmark-max-time=5.0 \
+            --benchmark-json=benchmark_results.json
       
-      - name: Upload benchmark results
-        uses: actions/upload-artifact@v3
+      - name: Install Bencher CLI
+        uses: bencherdev/bencher@main
+      
+      - name: Track benchmarks with Bencher
+        run: |
+          bencher run \
+            --project pyhgvs2 \
+            --token "${{ secrets.BENCHER_API_TOKEN }}" \
+            --branch "${{ github.head_ref || github.ref_name }}" \
+            --testbed github-actions \
+            --adapter python_pytest \
+            --file benchmark_results.json \
+            --err
         if: always()
+      
+      - name: Upload benchmark results (fallback)
+        uses: actions/upload-artifact@v4
         with:
           name: benchmark-results-${{ github.sha }}
           path: |
             .benchmarks/
-            benchmark.json
+            benchmark_results.json
           retention-days: 30
