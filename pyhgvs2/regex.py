@@ -123,3 +123,45 @@ class HGVSRegex:
     ]
 
     GENOMIC_ALLELE_REGEXES = [re.compile("^" + regex + "$") for regex in GENOMIC_ALLELE]
+
+    # Repeated sequence syntax
+    REPEAT_UNIT = "(?P<repeat_unit>" + BASES + ")"
+    REPEAT_COUNT = r"\[(?P<repeat_count>\d+)\]"
+
+    # Pattern for mixed repeats: sequence1[count1]sequence2[count2]...
+    # Need to use non-capturing group to avoid the alternation issue with BASES
+    MIXED_REPEAT = (
+        r"(?P<mixed_repeat>(?:(?:[acgtbdhkmnrsvwyACGTBDHKMNRSVWY]+|\d+)\[\d+\])+)"
+    )
+
+    # Repeated sequence patterns for cDNA
+    CDNA_REPEAT_ALLELE = [
+        # Simple repeat at single position: c.123CAG[26]
+        CDNA_START + REPEAT_UNIT + REPEAT_COUNT,
+        # Range repeat: c.123_456CAG[26]
+        CDNA_RANGE + REPEAT_UNIT + REPEAT_COUNT,
+        # Mixed repeat at single position: c.123CAG[19]CAA[4]
+        CDNA_START + MIXED_REPEAT,
+        # Mixed repeat at range: c.123_456CAG[19]CAA[4]
+        CDNA_RANGE + MIXED_REPEAT,
+    ]
+
+    CDNA_REPEAT_ALLELE_REGEXES = [
+        re.compile("^" + regex + "$") for regex in CDNA_REPEAT_ALLELE
+    ]
+
+    # Repeated sequence patterns for genomic
+    GENOMIC_REPEAT_ALLELE = [
+        # Simple repeat at single position: g.123CAG[26]
+        COORD_START + REPEAT_UNIT + REPEAT_COUNT,
+        # Range repeat: g.123_456CAG[26]
+        COORD_RANGE + REPEAT_UNIT + REPEAT_COUNT,
+        # Mixed repeat at single position: g.123CAG[19]CAA[4]
+        COORD_START + MIXED_REPEAT,
+        # Mixed repeat at range: g.123_456CAG[19]CAA[4]
+        COORD_RANGE + MIXED_REPEAT,
+    ]
+
+    GENOMIC_REPEAT_ALLELE_REGEXES = [
+        re.compile("^" + regex + "$") for regex in GENOMIC_REPEAT_ALLELE
+    ]
