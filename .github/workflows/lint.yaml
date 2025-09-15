@@ -44,8 +44,6 @@ jobs:
     needs: test
     timeout-minutes: 10
     # Only run benchmarks on Python 3.12 to avoid redundant runs
-    if: github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
-
     steps:
       - name: Checkout
         uses: actions/checkout@v5
