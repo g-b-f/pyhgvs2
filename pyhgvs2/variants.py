@@ -91,7 +91,7 @@ def justify_indel(
             start += 1
             end += 1
     else:
-        raise ValueError(f'unknown justify "{justify}"')
+        raise ValueError('unknown justify "%s"' % justify)
     return start, end, indel
 
 
@@ -222,7 +222,7 @@ class NormalizedVariant:
         minlength = min(map(len, self.alleles))
         common_prefix = 0
         for i in range(minlength):
-            if len({allele[i] for allele in self.alleles}) > 1:
+            if len(set(allele[i] for allele in self.alleles)) > 1:
                 # Not all alleles match at this site, so common prefix ends.
                 break
             common_prefix = i + 1
@@ -242,7 +242,7 @@ class NormalizedVariant:
         minlength = min(map(len, self.alleles))
         common_suffix = 0
         for i in range(1, minlength + 1):
-            if len({allele[-i] for allele in self.alleles}) > 1:
+            if len(set(allele[-i] for allele in self.alleles)) > 1:
                 # Not all alleles match at this site, so common suffix ends.
                 break
             common_suffix = i
@@ -318,7 +318,7 @@ class NormalizedVariant:
 
         # Pad sequences with one 5-prime base before the mutation event.
         empty_seq = any(not allele for allele in self.alleles)
-        uniq_starts = {allele[0] for allele in self.alleles if allele}
+        uniq_starts = set(allele[0] for allele in self.alleles if allele)
         if empty_seq or len(uniq_starts) > 1:
             # Fetch more 5p flanking sequence if needed.
             if self.genome and self.seq_5p == "":
@@ -345,7 +345,7 @@ class NormalizedVariant:
                 self.seq_3p = self.seq_3p[1:]
                 self.position.chrom_stop += 1
 
-        if len({a[0] for a in self.alleles}) != 1:
+        if len(set(a[0] for a in self.alleles)) != 1:
             raise ValueError("All INDEL alleles should start with same base.")
 
     def _set_1based_position(self):
