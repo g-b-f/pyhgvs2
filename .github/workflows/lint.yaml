@@ -1,8 +1,34 @@
 name: Linting, Testing, and Benchmarking
 on: [pull_request, workflow_dispatch]
 jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+      - name: Check if version was bumped
+        run: |
+          if git diff origin/master -- pyproject.toml | grep -q "version"; then
+            echo "Version was changed in pyproject.toml"
+          else
+            echo "Remember to bump version in pyproject.toml"
+            echo "you can do this with 'uv version --bump {major|minor|patch}'"
+            exit 1
+          fi
+      - name: Install uv, set python version
+        uses: astral-sh/setup-uv@v5
+        with:
+          python-version: "3.12"
+          enable-cache: false
+
+      - name: ruff
+        uses: astral-sh/ruff-action@v3
+
   test:
     runs-on: ubuntu-latest
+    needs: lint
     strategy:
       matrix:
         python-version:
@@ -16,24 +42,11 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v5
-        with:
-          fetch-depth: 0
-      - name: Check if version was bumped
-        run: |
-          if git diff origin/master -- pyproject.toml | grep -q "version"; then
-            echo "Version was changed in pyproject.toml"
-          else
-            echo "Remember to bump version in pyproject.toml"
-            exit 1
-          fi
       - name: Install uv, set python version
         uses: astral-sh/setup-uv@v5
         with:
           python-version: ${{ matrix.python-version }}
           enable-cache: true
-
-      - name: ruff
-        uses: astral-sh/ruff-action@v3
       - name: Install project
         run: uv sync --locked --all-extras --dev
       - name: Run tests
@@ -43,7 +56,6 @@ jobs:
     runs-on: ubuntu-latest
     needs: test
     timeout-minutes: 10
-    # Only run benchmarks on Python 3.12 to avoid redundant runs
     steps:
       - name: Checkout
         uses: actions/checkout@v5
