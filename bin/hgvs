@@ -70,7 +70,7 @@ def determine_allele(genome, hgvs_name:str):
     if ref != genome_ref:
         messages.append(
             "Reference allele does not match genome. Ignoring allele: "
-            "%s != %s" % (ref, genome_ref)
+            f"{ref} != {genome_ref}"
         )
 
     # Normalize variant.
