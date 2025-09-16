@@ -4,18 +4,13 @@ from unittest import TestCase
 from ..variants import normalize_variant
 from .genome import MockGenomeTestFile
 
-_genome_seq = dict(
-    [
-        (("chr1", 0, 41), "N" * 41),
-        (("chr1", 1, 31), "N" * 30),
-        (
-            ("chr17", 41246230, 41246271),
-            "AGCCTCATGAGGATCACTGGCCAGTAAGTCTATTTTCTCTG",
-        ),  # nopep8
-        (("chr17", 41246218, 41246248), "TTTACATATTAAAGCCTCATGAGGATCACT"),
-        (("chr17", 41246249, 41246279), "GCCAGTAAGTCTATTTTCTCTGAAGAACCA"),
-    ]
-)
+_genome_seq = {
+    ("chr1", 0, 41): "N" * 41,
+    ("chr1", 1, 31): "N" * 30,
+    ("chr17", 41246230, 41246271): "AGCCTCATGAGGATCACTGGCCAGTAAGTCTATTTTCTCTG",
+    ("chr17", 41246218, 41246248): "TTTACATATTAAAGCCTCATGAGGATCACT",
+    ("chr17", 41246249, 41246279): "GCCAGTAAGTCTATTTTCTCTGAAGAACCA",
+}
 ChromType = tuple[str, int, str, list[str]]
 NormTest = tuple[ChromType, ChromType, Literal["left", "right"]]
 
@@ -68,8 +63,8 @@ class TestVariant(TestCase):
             self.assertEqual(
                 norm_variant,
                 true_variant,
-                "Variant failed to normalize %s: %s != %s"
-                % (repr(variant), repr(norm_variant), repr(true_variant)),
+                f"Variant failed to normalize {repr(variant)}: "
+                f"{repr(norm_variant)} != {repr(true_variant)}"
             )
 
     def test_position(self):

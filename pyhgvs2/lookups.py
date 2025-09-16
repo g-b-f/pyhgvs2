@@ -31,9 +31,7 @@ REFSEQ_PREFIXES = [
     ("ZP_", "Protein", "Predicted model, annotated on NZ_ genomic records"),
 ]
 
-REFSEQ_PREFIX_LOOKUP = dict(
-    (prefix, (kind, description)) for prefix, kind, description in REFSEQ_PREFIXES
-)
+REFSEQ_PREFIX_LOOKUP = {prefix: (kind, description) for prefix, kind, description in REFSEQ_PREFIXES}
 
 
 def get_refseq_type(name: str) -> Optional[str]:
@@ -300,7 +298,7 @@ def get_allele(hgvs, genome, transcript=None):
     return chrom, start, end, ref, alt
 
 
-_indel_mutation_types = set(["ins", "del", "dup", "delins"])
+_indel_mutation_types = {"ins", "del", "dup", "delins"}
 
 
 def get_vcf_allele(
