@@ -1,4 +1,4 @@
-from typing import Callable, Literal, Optional, Tuple
+from typing import Callable, Literal, Optional
 
 from .hgvsg_name import HGVSName
 from .lookups import genomic_to_cdna_coord, get_vcf_allele
@@ -64,7 +64,7 @@ def hgvs_justify_dup(
 
 def hgvs_justify_indel(
     chrom: str, offset: int, ref: str, alt: str, strand: str, genome: GenomeType
-) -> Tuple[str, int, str, str]:
+) -> tuple[str, int, str, str]:
     """
     3' justify an indel according to the HGVS standard.
 

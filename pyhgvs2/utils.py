@@ -2,7 +2,7 @@
 Helper functions.
 """
 
-from typing import Generator, List, TextIO, Tuple, TypedDict
+from typing import Generator, TextIO, TypedDict
 
 from .models import Exon, Position, Transcript
 
@@ -16,8 +16,8 @@ class RefGeneRecord(TypedDict):
     cds_start: int
     cds_end: int
     gene_name: str
-    exons: List[Tuple[int, int]]
-    exon_frames: List[int]
+    exons: list[tuple[int, int]]
+    exon_frames: list[int]
 
 
 def read_refgene(infile: TextIO) -> Generator[RefGeneRecord, None, None]:
@@ -55,9 +55,9 @@ def read_refgene(infile: TextIO) -> Generator[RefGeneRecord, None, None]:
             )
 
         # Skip trailing ,
-        exon_starts = list(map(int, row[9].split(",")[:-1]))
-        exon_ends = list(map(int, row[10].split(",")[:-1]))
-        exon_frames = list(map(int, row[15].split(",")[:-1]))
+        exon_starts = [int(x) for x in row[9].split(",")[:-1]]
+        exon_ends = [int(x) for x in row[10].split(",")[:-1]]
+        exon_frames = [int(x) for x in row[15].split(",")[:-1]]
         exons = list(zip(exon_starts, exon_ends))
 
         yield {
