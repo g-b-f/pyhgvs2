@@ -10,10 +10,15 @@ jobs:
           fetch-depth: 0
       - name: Check if version was bumped
         run: |
-          if git diff origin/master -- pyproject.toml | grep -q "version"; then
-            echo "Version was changed in pyproject.toml"
+          echo "Current branch: $(git branch --show-current)"
+          echo "Fetching master branch..."
+          git fetch origin master:master
+          echo "Checking version diff..."
+          git diff master -- pyproject.toml
+          if git diff master -- pyproject.toml | grep -q "version"; then
+            echo "✅ Version was changed in pyproject.toml"
           else
-            echo "Remember to bump version in pyproject.toml"
+            echo "❌ Remember to bump version in pyproject.toml"
             echo "you can do this with 'uv version --bump {major|minor|patch}'"
             exit 1
           fi
@@ -37,7 +42,6 @@ jobs:
           - "3.11"
           - "3.12"
           - "3.13"
-          - "3.14"
 
     steps:
       - name: Checkout
