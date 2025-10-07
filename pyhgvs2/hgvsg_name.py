@@ -106,9 +106,9 @@ class HGVSName:
             self.gene = ""
             return
 
-        # Transcript and gene given with parens.
+        # Transcript and gene given with parentheses.
         # example: NM_007294.3(BRCA1):c.2207A>C
-        match = re.match(r"^(?P<transcript>[^(]+)\((?P<gene>[^)]+)\)$", prefix)
+        match = self._regexes.TRANSCRIPT_GENE_PARENS_REGEX.match(prefix)
         if match:
             self.transcript = match.group("transcript")
             self.gene = match.group("gene")
@@ -116,7 +116,7 @@ class HGVSName:
 
         # Transcript and gene given with braces.
         # example: BRCA1{NM_007294.3}:c.2207A>C
-        match = re.match(r"^(?P<gene>[^{]+)\{(?P<transcript>[^}]+)\}$", prefix)
+        match = self._regexes.GENE_TRANSCRIPT_BRACES_REGEX.match(prefix)
         if match:
             self.transcript = match.group("transcript")
             self.gene = match.group("gene")
@@ -242,7 +242,7 @@ class HGVSName:
                     self.repeat_counts = [int(groups["repeat_count"])]
                 elif groups.get("mixed_repeat"):
                     # Mixed repeat: CAG[19]CAA[4]
-                    self.repeat_units, self.repeat_counts = self.parse_repeats(
+                    self.repeat_units, self.repeat_counts = self.parse_mixed_repeats(
                         groups["mixed_repeat"]
                     )
 
@@ -250,7 +250,7 @@ class HGVSName:
 
         raise NonMatchingAlleleError(details, "cDNA")
 
-    def parse_repeats(self, repeat_string: str):
+    def parse_mixed_repeats(self, repeat_string: str):
         """
         Parse mixed repeat notation like CAG[19]CAA[4] into separate units and counts.
 
@@ -260,14 +260,11 @@ class HGVSName:
         Returns:
             tuple: (repeat_units, repeat_counts) lists
         """
-        import re
-
         # Pattern to match sequence[count] pairs
-        pattern = r"([ACGTBDHKMNRSVWY]+|\d+)\[(\d+)\]"
-        matches = re.findall(pattern, repeat_string.upper())
+        matches = re.findall(self._regexes.MIXED_REPEAT_PARSER, repeat_string.upper())
 
-        repeat_units = []
-        repeat_counts = []
+        repeat_units: list[str] = []
+        repeat_counts: list[int] = []
 
         for unit, count in matches:
             repeat_units.append(unit)
@@ -379,7 +376,7 @@ class HGVSName:
                     self.repeat_counts = [int(groups["repeat_count"])]
                 elif groups.get("mixed_repeat"):
                     # Mixed repeat: CAG[19]CAA[4]
-                    self.repeat_units, self.repeat_counts = self.parse_repeats(
+                    self.repeat_units, self.repeat_counts = self.parse_mixed_repeats(
                         groups["mixed_repeat"]
                     )
 

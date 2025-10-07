@@ -1,15 +1,16 @@
 import re
 
-# from .constants import CHROM_PREFIX, CDNA_STOP_CODON, CDNA_START_CODON
-
-
 class HGVSRegex:
     """
     All regular expression for HGVS names.
     """
 
     @staticmethod
-    def _compile_regexes(regexes):
+    def _compile_regex(regex) -> re.Pattern[str]:
+        return re.compile("^" + regex + "$")
+
+    @staticmethod
+    def _compile_regexes(regexes) -> list[re.Pattern[str]]:
         return [re.compile("^" + regex + "$") for regex in regexes]
 
     # DNA syntax
@@ -164,3 +165,11 @@ class HGVSRegex:
     ]
 
     GENOMIC_REPEAT_ALLELE_REGEXES = _compile_regexes(GENOMIC_REPEAT_ALLELE)
+
+    # Prefix parsing patterns
+    TRANSCRIPT_GENE_PARENS = r"^(?P<transcript>[^(]+)\((?P<gene>[^)]+)\)$"
+    GENE_TRANSCRIPT_BRACES = r"^(?P<gene>[^{]+)\{(?P<transcript>[^}]+)\}$"
+    MIXED_REPEAT_PARSER = r"([ACGTBDHKMNRSVWY]+|\d+)\[(\d+)\]"
+
+    TRANSCRIPT_GENE_PARENS_REGEX = _compile_regex(TRANSCRIPT_GENE_PARENS)
+    GENE_TRANSCRIPT_BRACES_REGEX = _compile_regex(GENE_TRANSCRIPT_BRACES)

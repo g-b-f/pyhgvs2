@@ -360,21 +360,21 @@ class TestHgvsRepeat:
         assert formatted == hgvs_name
 
     def test_parse_repeat_helper_method(self):
-        """Test the parse_repeats helper method directly."""
+        """Test the parse_mixed_repeats helper method directly."""
         hgvs = HGVSName()
 
         # Test simple repeat
-        units, counts = hgvs.parse_repeats("CAG[26]")
+        units, counts = hgvs.parse_mixed_repeats("CAG[26]")
         assert units == ["CAG"]
         assert counts == [26]
 
         # Test mixed repeat
-        units, counts = hgvs.parse_repeats("GGC[10]GGA[1]GGC[9]")
+        units, counts = hgvs.parse_mixed_repeats("GGC[10]GGA[1]GGC[9]")
         assert units == ["GGC", "GGA", "GGC"]
         assert counts == [10, 1, 9]
 
         # Test complex mixed repeat
-        units, counts = hgvs.parse_repeats("CTG[9]TTG[1]CTG[13]")
+        units, counts = hgvs.parse_mixed_repeats("CTG[9]TTG[1]CTG[13]")
         assert units == ["CTG", "TTG", "CTG"]
         assert counts == [9, 1, 13]
 
