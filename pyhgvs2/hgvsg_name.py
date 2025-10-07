@@ -180,9 +180,8 @@ class HGVSName:
           Indel: 3428delCinsTA, 1000_1003delATG, 1000_1001insATG
         """
 
-        for regex in (
-            self._regexes.CDNA_ALLELE_REGEXES + self._regexes.CDNA_REPEAT_ALLELE_REGEXES
-        ):
+        # Try regular allele regexes first
+        for regex in self._regexes.CDNA_ALLELE_REGEXES:
             match = re.match(regex, details)
             if match:
                 groups = match.groupdict()
@@ -194,45 +193,58 @@ class HGVSName:
                 else:
                     self.cdna_end = CDNACoord(string=groups.get("start"))
 
-                # Check if this is a repeat pattern
-                if groups.get("repeat_unit") or groups.get("mixed_repeat"):
-                    # Handle repeat sequences
-                    self.mutation_type = "repeat"
-
-                    if groups.get("repeat_unit") and groups.get("repeat_count"):
-                        # Simple repeat: CAG[26]
-                        self.repeat_units = [groups["repeat_unit"]]
-                        self.repeat_counts = [int(groups["repeat_count"])]
-                    elif groups.get("mixed_repeat"):
-                        # Mixed repeat: CAG[19]CAA[4]
-                        self.repeat_units, self.repeat_counts = self.parse_repeats(
-                            groups["mixed_repeat"]
-                        )
+                # Handle regular cDNA variants
+                # Parse mutation type.
+                if groups.get("delins"):
+                    self.mutation_type = "delins"
                 else:
-                    # Handle regular cDNA variants
-                    # Parse mutation type.
-                    if groups.get("delins"):
-                        self.mutation_type = "delins"
-                    else:
-                        self.mutation_type = groups["mutation_type"]
+                    self.mutation_type = groups["mutation_type"]
 
-                    # Parse alleles.
-                    self.ref_allele = groups.get("ref", "")
-                    self.alt_allele = groups.get("alt", "")
+                # Parse alleles.
+                self.ref_allele = groups.get("ref", "")
+                self.alt_allele = groups.get("alt", "")
 
-                    # Convert numerical allelles.
-                    if self.ref_allele.isdigit():
-                        self.ref_allele = "N" * int(self.ref_allele)
-                    if self.alt_allele.isdigit():
-                        self.alt_allele = "N" * int(self.alt_allele)
+                # Convert numerical allelles.
+                if self.ref_allele.isdigit():
+                    self.ref_allele = "N" * int(self.ref_allele)
+                if self.alt_allele.isdigit():
+                    self.alt_allele = "N" * int(self.alt_allele)
 
-                    # Convert duplication alleles.
-                    if self.mutation_type == "dup":
-                        self.alt_allele = self.ref_allele * 2
+                # Convert duplication alleles.
+                if self.mutation_type == "dup":
+                    self.alt_allele = self.ref_allele * 2
 
-                    # Convert no match alleles.
-                    if self.mutation_type == "=":
-                        self.alt_allele = self.ref_allele
+                # Convert no match alleles.
+                if self.mutation_type == "=":
+                    self.alt_allele = self.ref_allele
+
+                return
+
+        # Try repeat allele regexes if regular regexes didn't match
+        for regex in self._regexes.CDNA_REPEAT_ALLELE_REGEXES:
+            match = re.match(regex, details)
+            if match:
+                groups = match.groupdict()
+
+                # Parse coordinates.
+                self.cdna_start = CDNACoord(string=groups.get("start"))
+                if groups.get("end"):
+                    self.cdna_end = CDNACoord(string=groups.get("end"))
+                else:
+                    self.cdna_end = CDNACoord(string=groups.get("start"))
+
+                # Handle repeat sequences
+                self.mutation_type = "repeat"
+
+                if groups.get("repeat_unit") and groups.get("repeat_count"):
+                    # Simple repeat: CAG[26]
+                    self.repeat_units = [groups["repeat_unit"]]
+                    self.repeat_counts = [int(groups["repeat_count"])]
+                elif groups.get("mixed_repeat"):
+                    # Mixed repeat: CAG[19]CAA[4]
+                    self.repeat_units, self.repeat_counts = self.parse_repeats(
+                        groups["mixed_repeat"]
+                    )
 
                 return
 
@@ -311,12 +323,9 @@ class HGVSName:
           Indel: 1000100_1000102delATG
         """
 
-        for regex in (
-            self._regexes.GENOMIC_ALLELE_REGEXES
-            + self._regexes.GENOMIC_REPEAT_ALLELE_REGEXES
-        ):
-            match = re.match(regex, details)
-            if match:
+        # Try regular allele regexes first
+        for regex in self._regexes.GENOMIC_ALLELE_REGEXES:
+            if match := re.match(regex, details):
                 groups = match.groupdict()
 
                 # Parse coordinates.
@@ -326,41 +335,53 @@ class HGVSName:
                 else:
                     self.end = self.start
 
-                if groups.get("repeat_unit") or groups.get("mixed_repeat"):
-                    self.mutation_type = "repeat"
-
-                    if groups.get("repeat_unit") and groups.get("repeat_count"):
-                        # Simple repeat: CAG[26]
-                        self.repeat_units = [groups["repeat_unit"]]
-                        self.repeat_counts = [int(groups["repeat_count"])]
-                    elif groups.get("mixed_repeat"):
-                        # Mixed repeat: CAG[19]CAA[4]
-                        self.repeat_units, self.repeat_counts = self.parse_repeats(
-                            groups["mixed_repeat"]
-                        )
+                if groups.get("delins"):
+                    self.mutation_type = "delins"
                 else:
-                    if groups.get("delins"):
-                        self.mutation_type = "delins"
-                    else:
-                        self.mutation_type = groups["mutation_type"]
+                    self.mutation_type = groups["mutation_type"]
 
-                    # Parse alleles
-                    self.ref_allele = groups.get("ref", "")
-                    self.alt_allele = groups.get("alt", "")
+                # Parse alleles
+                self.ref_allele = groups.get("ref", "")
+                self.alt_allele = groups.get("alt", "")
 
-                    # Convert numerical allelles
-                    if self.ref_allele.isdigit():
-                        self.ref_allele = "N" * int(self.ref_allele)
-                    if self.alt_allele.isdigit():
-                        self.alt_allele = "N" * int(self.alt_allele)
+                # Convert numerical allelles
+                if self.ref_allele.isdigit():
+                    self.ref_allele = "N" * int(self.ref_allele)
+                if self.alt_allele.isdigit():
+                    self.alt_allele = "N" * int(self.alt_allele)
 
-                    # Convert duplication alleles
-                    if self.mutation_type == "dup":
-                        self.alt_allele = self.ref_allele * 2
+                # Convert duplication alleles
+                if self.mutation_type == "dup":
+                    self.alt_allele = self.ref_allele * 2
 
-                    # Convert no match alleles
-                    if self.mutation_type == "=":
-                        self.alt_allele = self.ref_allele
+                # Convert no match alleles
+                if self.mutation_type == "=":
+                    self.alt_allele = self.ref_allele
+
+                return
+
+        for regex in self._regexes.GENOMIC_REPEAT_ALLELE_REGEXES:
+            if match := re.match(regex, details):
+                groups = match.groupdict()
+
+                # Parse coordinates.
+                self.start = int(groups["start"])
+                if groups.get("end"):
+                    self.end = int(groups["end"])
+                else:
+                    self.end = self.start
+
+                self.mutation_type = "repeat"
+
+                if groups.get("repeat_unit") and groups.get("repeat_count"):
+                    # Simple repeat: CAG[26]
+                    self.repeat_units = [groups["repeat_unit"]]
+                    self.repeat_counts = [int(groups["repeat_count"])]
+                elif groups.get("mixed_repeat"):
+                    # Mixed repeat: CAG[19]CAA[4]
+                    self.repeat_units, self.repeat_counts = self.parse_repeats(
+                        groups["mixed_repeat"]
+                    )
 
                 return
 

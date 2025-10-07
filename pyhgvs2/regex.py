@@ -8,6 +8,10 @@ class HGVSRegex:
     All regular expression for HGVS names.
     """
 
+    @staticmethod
+    def _compile_regexes(regexes):
+        return [re.compile("^" + regex + "$") for regex in regexes]
+
     # DNA syntax
     # http://www.hgvs.org/mutnomen/standards.html#nucleotide
     BASE = r"[acgtbdhkmnrsvwyACGTBDHKMNRSVWY]|\d+"
@@ -69,8 +73,7 @@ class HGVSRegex:
         "(?P<delins>" + CDNA_RANGE + "delins" + DNA_ALT + ")",
     ]
 
-    CDNA_ALLELE_REGEXES = [re.compile("^" + regex + "$") for regex in CDNA_ALLELE]
-
+    CDNA_ALLELE_REGEXES = _compile_regexes(CDNA_ALLELE)
     # Peptide syntax
     PEP = "([A-Z]([a-z]{2}))+"
     PEP_REF = "(?P<ref>" + PEP + ")"
@@ -94,7 +97,7 @@ class HGVSRegex:
         "(?P<delins>" + PEP_REF + COORD_START + "_" + PEP_REF2 + COORD_END + PEP_ALT + PEP_EXTRA + ")",
     ]
     # fmt: on
-    PEP_ALLELE_REGEXES = [re.compile("^" + regex + "$") for regex in PEP_ALLELE]
+    PEP_ALLELE_REGEXES = _compile_regexes(PEP_ALLELE)
 
     # Genomic allele syntax
     GENOMIC_ALLELE = [
@@ -122,10 +125,10 @@ class HGVSRegex:
         "(?P<delins>" + COORD_RANGE + "delins" + DNA_ALT + ")",
     ]
 
-    GENOMIC_ALLELE_REGEXES = [re.compile("^" + regex + "$") for regex in GENOMIC_ALLELE]
+    GENOMIC_ALLELE_REGEXES = _compile_regexes(GENOMIC_ALLELE)
 
     # Repeated sequence syntax
-    REPEAT_UNIT = "(?P<repeat_unit>" + BASES + ")"
+    REPEAT_UNIT = r"(?P<repeat_unit>" + BASES + ")"
     REPEAT_COUNT = r"\[(?P<repeat_count>\d+)\]"
 
     # Pattern for mixed repeats: sequence1[count1]sequence2[count2]...
@@ -146,9 +149,7 @@ class HGVSRegex:
         CDNA_RANGE + MIXED_REPEAT,
     ]
 
-    CDNA_REPEAT_ALLELE_REGEXES = [
-        re.compile("^" + regex + "$") for regex in CDNA_REPEAT_ALLELE
-    ]
+    CDNA_REPEAT_ALLELE_REGEXES = _compile_regexes(CDNA_REPEAT_ALLELE)
 
     # Repeated sequence patterns for genomic
     GENOMIC_REPEAT_ALLELE = [
@@ -162,6 +163,4 @@ class HGVSRegex:
         COORD_RANGE + MIXED_REPEAT,
     ]
 
-    GENOMIC_REPEAT_ALLELE_REGEXES = [
-        re.compile("^" + regex + "$") for regex in GENOMIC_REPEAT_ALLELE
-    ]
+    GENOMIC_REPEAT_ALLELE_REGEXES = _compile_regexes(GENOMIC_REPEAT_ALLELE)
