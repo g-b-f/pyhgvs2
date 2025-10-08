@@ -150,74 +150,91 @@ def test_invalid_coordinates():
 
 
 class TestHgvsRepeat:
-    def test_parse_simple_cdna_repeat(self):
-        """Test parsing simple cDNA repeat: c.6955CAG[26]"""
-        hgvs = HGVSName("c.6955CAG[26]")
-
+    @pytest.mark.parametrize(
+        "hgvs_string, expected_cdna_start, expected_cdna_end, expected_repeat_units, expected_repeat_counts",
+        [
+            (
+                "c.6955CAG[26]",
+                "6955",
+                "6955",
+                ["CAG"],
+                [26],
+            ),
+            (
+                "c.6955_6993CAG[26]",
+                "6955",
+                "6993",
+                ["CAG"],
+                [26],
+            ),
+            (
+                "c.-128_-69GGC[10]GGA[1]GGC[9]",
+                "-128",
+                "-69",
+                ["GGC", "GGA", "GGC"],
+                [10, 1, 9],
+            ),
+        ],
+    )
+    def test_parse_cdna_repeat(
+        self,
+        hgvs_string,
+        expected_cdna_start,
+        expected_cdna_end,
+        expected_repeat_units,
+        expected_repeat_counts,
+    ):
+        hgvs = HGVSName(hgvs_string)
         assert hgvs.kind == "c"
         assert hgvs.mutation_type == "repeat"
-        assert str(hgvs.cdna_start) == "6955"
-        assert str(hgvs.cdna_end) == "6955"
-        assert hgvs.repeat_units == ["CAG"]
-        assert hgvs.repeat_counts == [26]
+        assert str(hgvs.cdna_start) == expected_cdna_start
+        assert str(hgvs.cdna_end) == expected_cdna_end
+        assert hgvs.repeat_units == expected_repeat_units
+        assert hgvs.repeat_counts == expected_repeat_counts
 
-    def test_parse_range_cdna_repeat(self):
-        """Test parsing cDNA range repeat: c.6955_6993CAG[26]"""
-        hgvs = HGVSName("c.6955_6993CAG[26]")
-
-        assert hgvs.kind == "c"
-        assert hgvs.mutation_type == "repeat"
-        assert str(hgvs.cdna_start) == "6955"
-        assert str(hgvs.cdna_end) == "6993"
-        assert hgvs.repeat_units == ["CAG"]
-        assert hgvs.repeat_counts == [26]
-
-    def test_parse_mixed_cdna_repeat(self):
-        """Test parsing mixed cDNA repeat: c.-128_-69GGC[10]GGA[1]GGC[9]"""
-        hgvs = HGVSName("c.-128_-69GGC[10]GGA[1]GGC[9]")
-
-        assert hgvs.kind == "c"
-        assert hgvs.mutation_type == "repeat"
-        assert str(hgvs.cdna_start) == "-128"
-        assert str(hgvs.cdna_end) == "-69"
-        assert hgvs.repeat_units == ["GGC", "GGA", "GGC"]
-        assert hgvs.repeat_counts == [10, 1, 9]
-
-    def test_parse_simple_genomic_repeat(self):
-        """Test parsing simple genomic repeat: g.101179660TG[14]"""
-        hgvs = HGVSName("g.101179660TG[14]")
-
+    @pytest.mark.parametrize(
+        "hgvs_string, expected_start, expected_end, expected_repeat_units, expected_repeat_counts",
+        [
+            (
+                "g.101179660TG[14]",
+                101179660,
+                101179660,
+                ["TG"],
+                [14],
+            ),
+            (
+                "g.101179660_101179695TG[14]",
+                101179660,
+                101179695,
+                ["TG"],
+                [14],
+            ),
+            (
+                "g.112036755_112036823CTG[9]TTG[1]CTG[13]",
+                112036755,
+                112036823,
+                ["CTG", "TTG", "CTG"],
+                [9, 1, 13],
+            ),
+        ],
+    )
+    def test_parse_genomic_repeat(
+        self,
+        hgvs_string,
+        expected_start,
+        expected_end,
+        expected_repeat_units,
+        expected_repeat_counts,
+    ):
+        hgvs = HGVSName(hgvs_string)
         assert hgvs.kind == "g"
         assert hgvs.mutation_type == "repeat"
-        assert hgvs.start == 101179660
-        assert hgvs.end == 101179660
-        assert hgvs.repeat_units == ["TG"]
-        assert hgvs.repeat_counts == [14]
-
-    def test_parse_range_genomic_repeat(self):
-        """Test parsing genomic range repeat: g.101179660_101179695TG[14]"""
-        hgvs = HGVSName("g.101179660_101179695TG[14]")
-
-        assert hgvs.kind == "g"
-        assert hgvs.mutation_type == "repeat"
-        assert hgvs.start == 101179660
-        assert hgvs.end == 101179695
-        assert hgvs.repeat_units == ["TG"]
-        assert hgvs.repeat_counts == [14]
-
-    def test_parse_mixed_genomic_repeat(self):
-        """Test parsing mixed genomic repeat: g.112036755_112036823CTG[9]TTG[1]CTG[13]"""
-        hgvs = HGVSName("g.112036755_112036823CTG[9]TTG[1]CTG[13]")
-
-        assert hgvs.kind == "g"
-        assert hgvs.mutation_type == "repeat"
-        assert hgvs.start == 112036755
-        assert hgvs.end == 112036823
-        assert hgvs.repeat_units == ["CTG", "TTG", "CTG"]
-        assert hgvs.repeat_counts == [9, 1, 13]
+        assert hgvs.start == expected_start
+        assert hgvs.end == expected_end
+        assert hgvs.repeat_units == expected_repeat_units
+        assert hgvs.repeat_counts == expected_repeat_counts
 
     def test_parse_repeat_with_transcript_prefix(self):
-        """Test parsing repeat with transcript prefix"""
         hgvs = HGVSName("NM_023035.2:c.6955_6993CAG[26]")
 
         assert hgvs.transcript == "NM_023035.2"
@@ -229,7 +246,6 @@ class TestHgvsRepeat:
         assert hgvs.repeat_counts == [26]
 
     def test_parse_repeat_with_chromosome_prefix(self):
-        """Test parsing repeat with chromosome prefix"""
         hgvs = HGVSName("NC_000014.8:g.101179660_101179695TG[14]")
 
         assert hgvs.chrom == "NC_000014.8"
@@ -241,7 +257,6 @@ class TestHgvsRepeat:
         assert hgvs.repeat_counts == [14]
 
     def test_format_simple_cdna_repeat(self):
-        """Test formatting simple cDNA repeat"""
         hgvs = HGVSName()
         hgvs.kind = "c"
         hgvs.mutation_type = "repeat"
@@ -252,7 +267,6 @@ class TestHgvsRepeat:
         assert hgvs.format(use_prefix=False) == "c.6955CAG[26]"
 
     def test_format_range_cdna_repeat(self):
-        """Test formatting cDNA range repeat"""
         hgvs = HGVSName()
         hgvs.kind = "c"
         hgvs.mutation_type = "repeat"
@@ -264,7 +278,6 @@ class TestHgvsRepeat:
         assert hgvs.format(use_prefix=False) == "c.6955_6993CAG[26]"
 
     def test_format_mixed_cdna_repeat(self):
-        """Test formatting mixed cDNA repeat"""
         hgvs = HGVSName()
         hgvs.kind = "c"
         hgvs.mutation_type = "repeat"
@@ -275,42 +288,32 @@ class TestHgvsRepeat:
 
         assert hgvs.format(use_prefix=False) == "c.-128_-69GGC[10]GGA[1]GGC[9]"
 
-    def test_format_simple_genomic_repeat(self):
-        """Test formatting simple genomic repeat"""
+    @pytest.mark.parametrize(
+        "start, end, repeat_units, repeat_counts, expected",
+        [
+            (101179660, 101179660, ["TG"], [14], "g.101179660TG[14]"),
+            (101179660, 101179695, ["TG"], [14], "g.101179660_101179695TG[14]"),
+            (
+                112036755,
+                112036823,
+                ["CTG", "TTG", "CTG"],
+                [9, 1, 13],
+                "g.112036755_112036823CTG[9]TTG[1]CTG[13]",
+            ),
+        ],
+    )
+    def test_format_genomic_repeat(
+        self, start, end, repeat_units, repeat_counts, expected
+    ):
         hgvs = HGVSName()
         hgvs.kind = "g"
         hgvs.mutation_type = "repeat"
-        hgvs.start = hgvs.end = 101179660
-        hgvs.repeat_units = ["TG"]
-        hgvs.repeat_counts = [14]
+        hgvs.start = start
+        hgvs.end = end
+        hgvs.repeat_units = repeat_units
+        hgvs.repeat_counts = repeat_counts
 
-        assert hgvs.format(use_prefix=False) == "g.101179660TG[14]"
-
-    def test_format_range_genomic_repeat(self):
-        """Test formatting genomic range repeat"""
-        hgvs = HGVSName()
-        hgvs.kind = "g"
-        hgvs.mutation_type = "repeat"
-        hgvs.start = 101179660
-        hgvs.end = 101179695
-        hgvs.repeat_units = ["TG"]
-        hgvs.repeat_counts = [14]
-
-        assert hgvs.format(use_prefix=False) == "g.101179660_101179695TG[14]"
-
-    def test_format_mixed_genomic_repeat(self):
-        """Test formatting mixed genomic repeat"""
-        hgvs = HGVSName()
-        hgvs.kind = "g"
-        hgvs.mutation_type = "repeat"
-        hgvs.start = 112036755
-        hgvs.end = 112036823
-        hgvs.repeat_units = ["CTG", "TTG", "CTG"]
-        hgvs.repeat_counts = [9, 1, 13]
-
-        assert (
-            hgvs.format(use_prefix=False) == "g.112036755_112036823CTG[9]TTG[1]CTG[13]"
-        )
+        assert hgvs.format(use_prefix=False) == expected
 
     def test_format_repeat_with_transcript_prefix(self):
         """Test formatting repeat with transcript prefix"""
@@ -359,38 +362,32 @@ class TestHgvsRepeat:
         formatted = hgvs.format()
         assert formatted == hgvs_name
 
-    def test_parse_repeat_helper_method(self):
-        """Test the parse_mixed_repeats helper method directly."""
+    @pytest.mark.parametrize(
+        "repeat_string, expected_units, expected_counts",
+        [
+            ("CAG[26]", ["CAG"], [26]),
+            ("GGC[10]GGA[1]GGC[9]", ["GGC", "GGA", "GGC"], [10, 1, 9]),
+            ("CTG[9]TTG[1]CTG[13]", ["CTG", "TTG", "CTG"], [9, 1, 13]),
+        ],
+    )
+    def test_parse_repeat(self, repeat_string, expected_units, expected_counts):
         hgvs = HGVSName()
+        units, counts = hgvs.parse_mixed_repeats(repeat_string)
+        assert units == expected_units
+        assert counts == expected_counts
 
-        # Test simple repeat
-        units, counts = hgvs.parse_mixed_repeats("CAG[26]")
-        assert units == ["CAG"]
-        assert counts == [26]
-
-        # Test mixed repeat
-        units, counts = hgvs.parse_mixed_repeats("GGC[10]GGA[1]GGC[9]")
-        assert units == ["GGC", "GGA", "GGC"]
-        assert counts == [10, 1, 9]
-
-        # Test complex mixed repeat
-        units, counts = hgvs.parse_mixed_repeats("CTG[9]TTG[1]CTG[13]")
-        assert units == ["CTG", "TTG", "CTG"]
-        assert counts == [9, 1, 13]
-
-    def test_format_repeat_units_helper_method(self):
-        """Test the format_repeat_units helper method directly."""
+    @pytest.mark.parametrize(
+        "repeat_units, repeat_counts, expected",
+        [
+            (["CAG"], [26], "CAG[26]"),
+            (["GGC", "GGA", "GGC"], [10, 1, 9], "GGC[10]GGA[1]GGC[9]"),
+        ],
+    )
+    def test_format_repeat(self, repeat_units, repeat_counts, expected):
         hgvs = HGVSName()
-        hgvs.repeat_units = ["CAG"]
-        hgvs.repeat_counts = [26]
-
-        assert hgvs.format_repeat_units() == "CAG[26]"
-
-        # Test mixed repeat
-        hgvs.repeat_units = ["GGC", "GGA", "GGC"]
-        hgvs.repeat_counts = [10, 1, 9]
-
-        assert hgvs.format_repeat_units() == "GGC[10]GGA[1]GGC[9]"
+        hgvs.repeat_units = repeat_units
+        hgvs.repeat_counts = repeat_counts
+        assert hgvs.format_repeat_units() == expected
 
     def test_format_repeat_units_error_handling(self):
         """Test error handling in format_repeat_units."""
@@ -405,38 +402,48 @@ class TestHgvsRepeat:
         ):
             hgvs.format_repeat_units()
 
-    def test_repeat_specification_examples(self):
+    @pytest.mark.parametrize(
+        "hgvs_string, expected_units, expected_counts",
+        [
+            (
+                "NC_000014.8:g.101179660_101179695TG[14]",
+                ["TG"],
+                [14],
+            ),
+            (
+                "NM_023035.2:c.6955_6993CAG[26]",
+                ["CAG"],
+                [26],
+            ),
+            (
+                "NC_000003.12:g.63912687_63912716AGC[13]",
+                ["AGC"],
+                [13],
+            ),
+            (
+                "NM_002024.5:c.-128_-69GGC[10]GGA[1]GGC[9]GGA[1]GGC[10]",
+                ["GGC", "GGA", "GGC", "GGA", "GGC"],
+                [10, 1, 9, 1, 10],
+            ),
+            (
+                "NC_000012.11:g.112036755_112036823CTG[9]TTG[1]CTG[13]",
+                ["CTG", "TTG", "CTG"],
+                [9, 1, 13],
+            ),
+        ],
+    )
+    def test_repeat_parsing(self, hgvs_string, expected_units, expected_counts):
         """Test examples directly from the HGVS specification."""
-
-        # Example: NC_000014.8:g.101179660_101179695TG[14]
-        hgvs1 = HGVSName("NC_000014.8:g.101179660_101179695TG[14]")
-        assert hgvs1.chrom == "NC_000014.8"
-        assert hgvs1.repeat_units == ["TG"]
-        assert hgvs1.repeat_counts == [14]
-
-        # Example: NM_023035.2:c.6955_6993CAG[26]
-        hgvs2 = HGVSName("NM_023035.2:c.6955_6993CAG[26]")
-        assert hgvs2.transcript == "NM_023035.2"
-        assert hgvs2.repeat_units == ["CAG"]
-        assert hgvs2.repeat_counts == [26]
-
-        # Example: NC_000003.12:g.63912687_63912716AGC[13]
-        hgvs3 = HGVSName("NC_000003.12:g.63912687_63912716AGC[13]")
-        assert hgvs3.chrom == "NC_000003.12"
-        assert hgvs3.repeat_units == ["AGC"]
-        assert hgvs3.repeat_counts == [13]
-
-        # Example: NM_002024.5:c.-128_-69GGC[10]GGA[1]GGC[9]GGA[1]GGC[10]
-        hgvs4 = HGVSName("NM_002024.5:c.-128_-69GGC[10]GGA[1]GGC[9]GGA[1]GGC[10]")
-        assert hgvs4.transcript == "NM_002024.5"
-        assert hgvs4.repeat_units == ["GGC", "GGA", "GGC", "GGA", "GGC"]
-        assert hgvs4.repeat_counts == [10, 1, 9, 1, 10]
-
-        # Example: NC_000012.11:g.112036755_112036823CTG[9]TTG[1]CTG[13]
-        hgvs5 = HGVSName("NC_000012.11:g.112036755_112036823CTG[9]TTG[1]CTG[13]")
-        assert hgvs5.chrom == "NC_000012.11"
-        assert hgvs5.repeat_units == ["CTG", "TTG", "CTG"]
-        assert hgvs5.repeat_counts == [9, 1, 13]
+        hgvs = HGVSName(hgvs_string)
+        expected_prefix = hgvs_string.split(":")[0]
+        if hgvs.kind == "c":
+            assert hgvs.transcript == expected_prefix
+        elif hgvs.kind == "g":
+            assert hgvs.chrom == expected_prefix
+        else:
+            assert False, f"Unexpected kind: {hgvs.kind}"
+        assert hgvs.repeat_units == expected_units
+        assert hgvs.repeat_counts == expected_counts
 
 
 # Test examples of cDNA coordinates.

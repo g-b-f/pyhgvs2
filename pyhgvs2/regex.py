@@ -1,5 +1,6 @@
 import re
 
+
 class HGVSRegex:
     """
     All regular expression for HGVS names.
