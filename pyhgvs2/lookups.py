@@ -31,7 +31,9 @@ REFSEQ_PREFIXES = [
     ("ZP_", "Protein", "Predicted model, annotated on NZ_ genomic records"),
 ]
 
-REFSEQ_PREFIX_LOOKUP = {prefix: (kind, description) for prefix, kind, description in REFSEQ_PREFIXES}
+REFSEQ_PREFIX_LOOKUP = {
+    prefix: (kind, description) for prefix, kind, description in REFSEQ_PREFIXES
+}
 
 
 def get_refseq_type(name: str) -> Optional[str]:

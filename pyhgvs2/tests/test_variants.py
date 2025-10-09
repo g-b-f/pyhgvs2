@@ -11,7 +11,8 @@ _genome_seq = {
     ("chr17", 41246249, 41246279): "GCCAGTAAGTCTATTTTCTCTGAAGAACCA",
 }
 
-@pytest.fixture
+
+@pytest.fixture(scope="module")
 def genome() -> MockGenomeTestFile:
     return MockGenomeTestFile(
         db_filename="hg19.fa",
@@ -19,8 +20,10 @@ def genome() -> MockGenomeTestFile:
         create_data=False,
     )
 
+
 ChromType = tuple[str, int, str, list[str]]
 
+# fmt: off
 @pytest.mark.parametrize("variant,true_variant,justify", [
     # Simple SNP.
     (("chr17", 41246250, "G", ["C"]), ("chr17", 41246250, "G", ["C"]), "left"),
@@ -48,7 +51,7 @@ ChromType = tuple[str, int, str, list[str]]
     ),
     # Deletion. Trim common prefix, right-align, and 1bp pad.
     (("chr7", 117199644, "ATCT", ["A"]), ("chr7", 117199645, "TCTT", ["T"]), "right")
-    ])
+    ]) # fmt: on
 def test_normalize_variant(genome: MockGenomeTestFile, variant:ChromType, true_variant:ChromType, justify:Literal["left", "right"]):
     """
     Test normalize_variant against known cases.
@@ -60,23 +63,21 @@ def test_normalize_variant(genome: MockGenomeTestFile, variant:ChromType, true_v
         f"{repr(norm.variant)} != {repr(true_variant)}"
     )
 
-
-def test_position(genome: MockGenomeTestFile):
+class TestPosition:
     """
     Test that final position is 1-index and end-inclusive.
     """
-    
-    # Test SNP.
-    normed_allele = normalize_variant("chr11", 17417434, "A", ["T"], genome)
-    assert normed_allele.position.chrom_start == 17417434
-    assert normed_allele.position.chrom_stop == 17417434
+    def test_SNP(self, genome: MockGenomeTestFile):
+        normed_allele = normalize_variant("chr11", 17417434, "A", ["T"], genome)
+        assert normed_allele.position.chrom_start == 17417434
+        assert normed_allele.position.chrom_stop == 17417434
 
-    # Test INDEL with left adjustment.
-    normed_allele = normalize_variant("chr17", 3552198, "T", ["AT"], genome)
-    assert normed_allele.position.chrom_start == 3552192
-    assert normed_allele.position.chrom_stop == 3552192
+    def test_indel_left_adjustment(self, genome: MockGenomeTestFile):
+        normed_allele = normalize_variant("chr17", 3552198, "T", ["AT"], genome)
+        assert normed_allele.position.chrom_start == 3552192
+        assert normed_allele.position.chrom_stop == 3552192
 
-    # Test INDEL with right padding.
-    normed_allele = normalize_variant("chr1", 5, "NN", ["N"], genome)
-    assert normed_allele.position.chrom_start == 1
-    assert normed_allele.position.chrom_stop == 2
+    def test_indel_right_padding(self, genome: MockGenomeTestFile):
+        normed_allele = normalize_variant("chr1", 5, "NN", ["N"], genome)
+        assert normed_allele.position.chrom_start == 1
+        assert normed_allele.position.chrom_stop == 2
