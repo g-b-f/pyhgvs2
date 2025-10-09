@@ -152,29 +152,17 @@ def test_invalid_coordinates():
 class TestHgvsRepeat:
     @pytest.mark.parametrize(
         "hgvs_string, expected_cdna_start, expected_cdna_end, expected_repeat_units, expected_repeat_counts",
-        [
-            (
-                "c.6955CAG[26]",
-                "6955",
-                "6955",
-                ["CAG"],
-                [26],
+        [ # fmt: off
+            (   "c.6955CAG[26]",
+                "6955", "6955", ["CAG"], [26],
             ),
-            (
-                "c.6955_6993CAG[26]",
-                "6955",
-                "6993",
-                ["CAG"],
-                [26],
+            (   "c.6955_6993CAG[26]",
+                "6955", "6993", ["CAG"], [26],
             ),
-            (
-                "c.-128_-69GGC[10]GGA[1]GGC[9]",
-                "-128",
-                "-69",
-                ["GGC", "GGA", "GGC"],
-                [10, 1, 9],
+            (   "c.-128_-69GGC[10]GGA[1]GGC[9]",
+                "-128", "-69", ["GGC", "GGA", "GGC"], [10, 1, 9],
             ),
-        ],
+        ] # fmt: on
     )
     def test_parse_cdna_repeat(
         self,
@@ -194,29 +182,17 @@ class TestHgvsRepeat:
 
     @pytest.mark.parametrize(
         "hgvs_string, expected_start, expected_end, expected_repeat_units, expected_repeat_counts",
-        [
-            (
-                "g.101179660TG[14]",
-                101179660,
-                101179660,
-                ["TG"],
-                [14],
+        [ # fmt: off
+            (   "g.101179660TG[14]",
+                101179660, 101179660, ["TG"], [14],
             ),
-            (
-                "g.101179660_101179695TG[14]",
-                101179660,
-                101179695,
-                ["TG"],
-                [14],
+            (   "g.101179660_101179695TG[14]",
+                101179660, 101179695, ["TG"], [14],
             ),
-            (
-                "g.112036755_112036823CTG[9]TTG[1]CTG[13]",
-                112036755,
-                112036823,
-                ["CTG", "TTG", "CTG"],
-                [9, 1, 13],
+            (   "g.112036755_112036823CTG[9]TTG[1]CTG[13]",
+                112036755, 112036823, ["CTG", "TTG", "CTG"], [9, 1, 13],
             ),
-        ],
+        ] # fmt: on
     )
     def test_parse_genomic_repeat(
         self,
@@ -290,17 +266,18 @@ class TestHgvsRepeat:
 
     @pytest.mark.parametrize(
         "start, end, repeat_units, repeat_counts, expected",
-        [
-            (101179660, 101179660, ["TG"], [14], "g.101179660TG[14]"),
-            (101179660, 101179695, ["TG"], [14], "g.101179660_101179695TG[14]"),
+        [ # fmt: off
+            (   101179660, 101179660, ["TG"], [14],
+                "g.101179660TG[14]"
+            ),
             (
-                112036755,
-                112036823,
-                ["CTG", "TTG", "CTG"],
-                [9, 1, 13],
+                101179660, 101179695, ["TG"], [14],
+                "g.101179660_101179695TG[14]"
+            ),
+            (   112036755, 112036823, ["CTG", "TTG", "CTG"], [9, 1, 13],
                 "g.112036755_112036823CTG[9]TTG[1]CTG[13]",
             ),
-        ],
+        ] # fmt: on
     )
     def test_format_genomic_repeat(
         self, start, end, repeat_units, repeat_counts, expected
@@ -342,7 +319,7 @@ class TestHgvsRepeat:
         assert hgvs.format() == "NC_000014.8:g.101179660_101179695TG[14]"
 
     @pytest.mark.parametrize(
-        "hgvs_name",
+        "hgvs_string",
         [
             "c.6955CAG[26]",
             "c.6955_6993CAG[26]",
@@ -356,18 +333,18 @@ class TestHgvsRepeat:
             "c.1210-33_1210-6GT[11]T[6]",
         ],
     )
-    def test_repeat_sequence_roundtrip(self, hgvs_name):
+    def test_repeat_sequence_roundtrip(self, hgvs_string):
         """Test that parsing and formatting gives back the original name."""
-        hgvs = HGVSName(hgvs_name)
+        hgvs = HGVSName(hgvs_string)
         formatted = hgvs.format()
-        assert formatted == hgvs_name
+        assert formatted == hgvs_string
 
     @pytest.mark.parametrize(
         "repeat_string, expected_units, expected_counts",
         [
-            ("CAG[26]", ["CAG"], [26]),
-            ("GGC[10]GGA[1]GGC[9]", ["GGC", "GGA", "GGC"], [10, 1, 9]),
-            ("CTG[9]TTG[1]CTG[13]", ["CTG", "TTG", "CTG"], [9, 1, 13]),
+            ( "CAG[26]", ["CAG"], [26] ),
+            ( "GGC[10]GGA[1]GGC[9]", ["GGC", "GGA", "GGC"], [10, 1, 9] ),
+            ( "CTG[9]TTG[1]CTG[13]", ["CTG", "TTG", "CTG"], [9, 1, 13] ),
         ],
     )
     def test_parse_repeat(self, repeat_string, expected_units, expected_counts):
@@ -403,34 +380,28 @@ class TestHgvsRepeat:
             hgvs.format_repeat_units()
 
     @pytest.mark.parametrize(
-        "hgvs_string, expected_units, expected_counts",
-        [
-            (
+        "hgvs_string, expected_units, expected_counts", [
+            ( # fmt: off
                 "NC_000014.8:g.101179660_101179695TG[14]",
-                ["TG"],
-                [14],
+                ["TG"], [14]
             ),
             (
                 "NM_023035.2:c.6955_6993CAG[26]",
-                ["CAG"],
-                [26],
+                ["CAG"], [26]
             ),
             (
                 "NC_000003.12:g.63912687_63912716AGC[13]",
-                ["AGC"],
-                [13],
+                ["AGC"], [13]
             ),
             (
                 "NM_002024.5:c.-128_-69GGC[10]GGA[1]GGC[9]GGA[1]GGC[10]",
-                ["GGC", "GGA", "GGC", "GGA", "GGC"],
-                [10, 1, 9, 1, 10],
+                ["GGC", "GGA", "GGC", "GGA", "GGC"], [10, 1, 9, 1, 10]
             ),
             (
                 "NC_000012.11:g.112036755_112036823CTG[9]TTG[1]CTG[13]",
-                ["CTG", "TTG", "CTG"],
-                [9, 1, 13],
-            ),
-        ],
+                ["CTG", "TTG", "CTG"], [9, 1, 13]
+            ) # fmt: on
+        ]
     )
     def test_repeat_parsing(self, hgvs_string, expected_units, expected_counts):
         """Test examples directly from the HGVS specification."""
