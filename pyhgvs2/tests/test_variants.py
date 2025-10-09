@@ -1,6 +1,5 @@
 from typing import Literal
-from unittest import TestCase
-
+import pytest
 from ..variants import normalize_variant
 from .genome import MockGenomeTestFile
 
@@ -11,10 +10,18 @@ _genome_seq = {
     ("chr17", 41246218, 41246248): "TTTACATATTAAAGCCTCATGAGGATCACT",
     ("chr17", 41246249, 41246279): "GCCAGTAAGTCTATTTTCTCTGAAGAACCA",
 }
-ChromType = tuple[str, int, str, list[str]]
-NormTest = tuple[ChromType, ChromType, Literal["left", "right"]]
 
-_normalize_tests: list[NormTest] = [
+@pytest.fixture
+def genome() -> MockGenomeTestFile:
+    return MockGenomeTestFile(
+        db_filename="hg19.fa",
+        filename="pyhgvs2/tests/data/test_variants.2.genome",
+        create_data=False,
+    )
+
+ChromType = tuple[str, int, str, list[str]]
+
+@pytest.mark.parametrize("variant,true_variant,justify", [
     # Simple SNP.
     (("chr17", 41246250, "G", ["C"]), ("chr17", 41246250, "G", ["C"]), "left"),
     # Left-align and 1bp pad.
@@ -40,54 +47,36 @@ _normalize_tests: list[NormTest] = [
         "right",
     ),
     # Deletion. Trim common prefix, right-align, and 1bp pad.
-    (("chr7", 117199644, "ATCT", ["A"]), ("chr7", 117199645, "TCTT", ["T"]), "right"),
-]
+    (("chr7", 117199644, "ATCT", ["A"]), ("chr7", 117199645, "TCTT", ["T"]), "right")
+    ])
+def test_normalize_variant(genome: MockGenomeTestFile, variant:ChromType, true_variant:ChromType, justify:Literal["left", "right"]):
+    """
+    Test normalize_variant against known cases.
+    """
+    chrom, offset, ref, alts = variant
+    norm = normalize_variant(chrom, offset, ref, alts, genome, justify=justify)
+    assert norm.variant == true_variant, (
+        f"Variant failed to normalize {repr(variant)}: "
+        f"{repr(norm.variant)} != {repr(true_variant)}"
+    )
 
 
-class TestVariant(TestCase):
-    def test_normalize_variant(self):
-        """
-        Test normalize_variant against known cases.
-        """
-        genome = MockGenomeTestFile(
-            db_filename="hg19.fa",
-            filename="pyhgvs2/tests/data/test_variants.genome",
-            create_data=False,
-        )
+def test_position(genome: MockGenomeTestFile):
+    """
+    Test that final position is 1-index and end-inclusive.
+    """
+    
+    # Test SNP.
+    normed_allele = normalize_variant("chr11", 17417434, "A", ["T"], genome)
+    assert normed_allele.position.chrom_start == 17417434
+    assert normed_allele.position.chrom_stop == 17417434
 
-        for variant, true_variant, justify in _normalize_tests:
-            chrom, offset, ref, alts = variant
-            norm_variant = normalize_variant(
-                chrom, offset, ref, alts, genome, justify=justify
-            ).variant
-            self.assertEqual(
-                norm_variant,
-                true_variant,
-                f"Variant failed to normalize {repr(variant)}: "
-                f"{repr(norm_variant)} != {repr(true_variant)}"
-            )
+    # Test INDEL with left adjustment.
+    normed_allele = normalize_variant("chr17", 3552198, "T", ["AT"], genome)
+    assert normed_allele.position.chrom_start == 3552192
+    assert normed_allele.position.chrom_stop == 3552192
 
-    def test_position(self):
-        """
-        Test that final position is 1-index and end-inclusive.
-        """
-        genome = MockGenomeTestFile(
-            db_filename="hg19.fa",
-            filename="pyhgvs2/tests/data/test_variants.2.genome",
-            create_data=False,
-        )
-
-        # Test SNP.
-        normed_allele = normalize_variant("chr11", 17417434, "A", ["T"], genome)
-        self.assertEqual(normed_allele.position.chrom_start, 17417434)
-        self.assertEqual(normed_allele.position.chrom_stop, 17417434)
-
-        # Test INDEL with left adjustment.
-        normed_allele = normalize_variant("chr17", 3552198, "T", ["AT"], genome)
-        self.assertEqual(normed_allele.position.chrom_start, 3552192)
-        self.assertEqual(normed_allele.position.chrom_stop, 3552192)
-
-        # Test INDEL with right padding.
-        normed_allele = normalize_variant("chr1", 5, "NN", ["N"], genome)
-        self.assertEqual(normed_allele.position.chrom_start, 1)
-        self.assertEqual(normed_allele.position.chrom_stop, 2)
+    # Test INDEL with right padding.
+    normed_allele = normalize_variant("chr1", 5, "NN", ["N"], genome)
+    assert normed_allele.position.chrom_start == 1
+    assert normed_allele.position.chrom_stop == 2
