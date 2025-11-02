@@ -35,6 +35,10 @@ extend-include = ["bin/"]
 [tool.ruff.lint]
 extend-select = [
     "BLE",  # Blind exceptions
+    "A",    # Builtin shadowing
+    "C4",   # Comprehensions
+    "LOG",  # Logging
+    "G",    # Logging formatting
 ]
 
 [tool.pytest.ini_options]
