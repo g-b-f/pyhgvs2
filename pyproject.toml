@@ -39,6 +39,7 @@ extend-select = [
     "C4",   # Comprehensions
     "LOG",  # Logging
     "G",    # Logging formatting
+    "I",    # isort
 ]
 
 [tool.pytest.ini_options]
