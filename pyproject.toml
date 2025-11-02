@@ -32,6 +32,11 @@ exclude = [
 [tool.ruff]
 extend-include = ["bin/"]
 
+[tool.ruff.lint]
+extend-select = [
+    "BLE",  # Blind exceptions
+]
+
 [tool.pytest.ini_options]
 filterwarnings = ["error"]
 markers = [

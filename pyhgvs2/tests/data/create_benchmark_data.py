@@ -20,7 +20,7 @@ with gzip.open(benchmark_file, "rt") as f:
         try:
             HGVSName(line)
             benchmark_data.append(line)
-        except Exception as e:
+        except Exception as e: # noqa: BLE001
             errors[line] = str(e)
 
 print(f"skipped {len(errors)} lines with errors")
