@@ -44,10 +44,13 @@ extend-select = [
     "ISC",  # String concatenation
     "ICN",  # Import conventions
     "RET",  # Return conventions
+    "FURB", # refurb
+    "B",    # flake8-bugbear
 ]
 
 ignore = [
     "RET503",  # Explicit return
+    "B007"     # Unused loop control variable
 ]
 
 [tool.pytest.ini_options]

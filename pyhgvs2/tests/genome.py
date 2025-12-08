@@ -101,7 +101,7 @@ class MockGenome:
         # Use lookup table to fetch genome sequence.
         try:
             return MockSequence(self._lookup[(chrom, start, end)])
-        except KeyError:
+        except KeyError as e:
             if self._default_seq:
                 # Generate default sequence.
                 return "".join(
@@ -111,7 +111,7 @@ class MockGenome:
                 )
             raise MockGenomeError(
                 f"Sequence not in test data: {chrom}:{start}-{end}"
-            )
+            ) from e
 
     def read(self, filename: Union[str, TextIO]):
         """Read a sequence lookup table from a file.
