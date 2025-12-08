@@ -6,5 +6,7 @@
     "python.testing.pytestEnabled": true,
     "cSpell.words": [
         "CDNA"
-    ]
+    ],
+    "python-envs.defaultEnvManager": "ms-python.python:venv",
+    "python-envs.pythonProjects": []
 }

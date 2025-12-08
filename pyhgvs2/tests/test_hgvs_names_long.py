@@ -17,7 +17,7 @@ def test_name_to_variant_long():
     )
 
     # Read transcripts.
-    with open("pyhgvs2/data/genes.refGene", "r") as infile:
+    with open("pyhgvs2/data/genes.refGene") as infile:
         transcripts = read_transcripts(infile)
 
     class NoTranscriptError(Exception):
@@ -41,7 +41,7 @@ def test_name_to_variant_long():
         return transcript
 
     errors = []
-    with open("pyhgvs2/tests/data/test_hgvs.txt", "r") as infile:
+    with open("pyhgvs2/tests/data/test_hgvs.txt") as infile:
         for i, line in enumerate(infile):
             row = line.rstrip().split("\t")
             chrom, offset, ref, alt, hgvs_name = row[:5]

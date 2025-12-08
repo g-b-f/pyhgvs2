@@ -3,8 +3,9 @@ Models for representing genomic elements.
 """
 
 import re
+from collections.abc import Mapping
 from dataclasses import dataclass
-from typing import Mapping, Optional
+from typing import Optional
 
 from .constants import CDNA_START_CODON, CDNA_STOP_CODON
 

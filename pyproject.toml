@@ -40,6 +40,7 @@ extend-select = [
     "LOG",  # Logging
     "G",    # Logging formatting
     "I",    # isort
+    "UP",   # pyupgrade
 ]
 
 [tool.pytest.ini_options]
