@@ -41,8 +41,7 @@ class MockChromosome:
         Coordinates are 0-based, end-exclusive."""
         if isinstance(n, slice):
             return self.genome.get_seq(self.name, n.start, n.stop)
-        else:
-            return self.genome.get_seq(self.name, n, n + 1)
+        return self.genome.get_seq(self.name, n, n + 1)
 
 
 class MockGenome:
@@ -99,22 +98,20 @@ class MockGenome:
             seq = self._genome[chrom][start:end]
             self._lookup[(chrom, start, end)] = str(seq)
             return seq
-        else:
-            # Use lookup table to fetch genome sequence.
-            try:
-                return MockSequence(self._lookup[(chrom, start, end)])
-            except KeyError:
-                if self._default_seq:
-                    # Generate default sequence.
-                    return "".join(
-                        itertools.islice(
-                            itertools.cycle(self._default_seq), None, end - start
-                        )
+        # Use lookup table to fetch genome sequence.
+        try:
+            return MockSequence(self._lookup[(chrom, start, end)])
+        except KeyError:
+            if self._default_seq:
+                # Generate default sequence.
+                return "".join(
+                    itertools.islice(
+                        itertools.cycle(self._default_seq), None, end - start
                     )
-                else:
-                    raise MockGenomeError(
-                        f"Sequence not in test data: {chrom}:{start}-{end}"
-                    )
+                )
+            raise MockGenomeError(
+                f"Sequence not in test data: {chrom}:{start}-{end}"
+            )
 
     def read(self, filename: Union[str, TextIO]):
         """Read a sequence lookup table from a file.

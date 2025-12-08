@@ -331,8 +331,7 @@ class HGVSName:
 
         if prefix:
             return prefix + ":" + allele
-        else:
-            return allele
+        return allele
 
     def format_prefix(self, use_gene=True) -> str:
         """
@@ -350,13 +349,10 @@ class HGVSName:
         if self.transcript:
             if use_gene and self.gene:
                 return f"{self.transcript}({self.gene})"
-            else:
-                return self.transcript
-        else:
-            if use_gene:
-                return self.gene
-            else:
-                return ""
+            return self.transcript
+        if use_gene:
+            return self.gene
+        return ""
 
     def format_cdna_coords(self) -> str:
         """
@@ -365,8 +361,7 @@ class HGVSName:
         # Format coordinates.
         if self.cdna_start == self.cdna_end:
             return str(self.cdna_start)
-        else:
-            return f"{self.cdna_start}_{self.cdna_end}"
+        return f"{self.cdna_start}_{self.cdna_end}"
 
     def format_dna_allele(self) -> str:
         """
@@ -382,26 +377,25 @@ class HGVSName:
             # example: 101A>C
             return self.ref_allele + ">" + self.alt_allele
 
-        elif self.mutation_type == "delins":
+        if self.mutation_type == "delins":
             # Indel.
             # example: 112_117delAGGTCAinsTG, 112_117delinsTG
             return "del" + self.ref_allele + "ins" + self.alt_allele
 
-        elif self.mutation_type in ("del", "dup"):
+        if self.mutation_type in ("del", "dup"):
             # Delete, duplication.
             # example: 1000_1003delATG, 1000_1003dupATG
             return self.mutation_type + self.ref_allele
 
-        elif self.mutation_type == "ins":
+        if self.mutation_type == "ins":
             # Insert.
             # example: 1000_1001insATG
             return self.mutation_type + self.alt_allele
 
-        elif self.mutation_type == "inv":
+        if self.mutation_type == "inv":
             return self.mutation_type
 
-        else:
-            raise ValueError(f"unknown mutation type: '{self.mutation_type}'")
+        raise ValueError(f"unknown mutation type: '{self.mutation_type}'")
 
     def format_cdna(self) -> str:
         """
@@ -431,7 +425,7 @@ class HGVSName:
             pep_extra = self.pep_extra if self.pep_extra else "="
             return self.ref_allele + str(self.start) + pep_extra
 
-        elif (
+        if (
             self.start == self.end
             and self.ref_allele == self.ref2_allele
             and self.ref_allele != self.alt_allele
@@ -440,7 +434,7 @@ class HGVSName:
             # Example: Glu1161Ser
             return self.ref_allele + str(self.start) + self.alt_allele + self.pep_extra
 
-        elif self.start != self.end:
+        if self.start != self.end:
             # Range change.
             # Example: Glu1161_Ser1164?fs
             return (
@@ -452,8 +446,7 @@ class HGVSName:
                 + self.pep_extra
             )
 
-        else:
-            raise NotImplementedError("protein name formatting.")
+        raise NotImplementedError("protein name formatting.")
 
     def format_coords(self) -> str:
         """
@@ -461,8 +454,7 @@ class HGVSName:
         """
         if self.start == self.end:
             return str(self.start)
-        else:
-            return f"{self.start}_{self.end}"
+        return f"{self.start}_{self.end}"
 
     def format_genome(self) -> str:
         """
@@ -546,5 +538,4 @@ class HGVSName:
 
         if is_forward_strand:
             return alleles
-        else:
-            return tuple(map(revcomp, alleles))  # type: ignore[return-value]
+        return tuple(map(revcomp, alleles))  # type: ignore[return-value]

@@ -58,8 +58,7 @@ class Transcript:
     def full_name(self) -> str:
         if self.version is not None:
             return f"{self.name}.{self.version}"
-        else:
-            return self.name
+        return self.name
 
     @property
     def is_coding(self) -> bool:
@@ -105,8 +104,7 @@ class BED6Interval:
 
         if abs(start_distance) < abs(end_distance):
             return start_distance
-        else:
-            return -end_distance
+        return -end_distance
 
 
 class Exon:
@@ -155,8 +153,7 @@ class Exon:
 
     @property
     def strand(self):
-        strand = "+" if self.tx_position.is_forward_strand else "-"
-        return strand
+        return "+" if self.tx_position.is_forward_strand else "-"
 
 
 class ChromosomeSubset:
@@ -177,8 +174,7 @@ class ChromosomeSubset:
             start -= self.genome.start
             end -= self.genome.start
             return self.genome.genome[self.genome.seqid][start:end]
-        else:
-            raise TypeError(f"Expected a slice object but received a {type(key)}.")
+        raise TypeError(f"Expected a slice object but received a {type(key)}.")
 
     def __repr__(self):
         return f'ChromosomeSubset("{self.name}")'
@@ -201,10 +197,9 @@ class GenomeSubset:
         """Return a chromosome by its name."""
         if chrom in self._chroms:
             return self._chroms[chrom]
-        else:
-            chromosome = ChromosomeSubset(chrom, self)
-            self._chroms[chrom] = chromosome
-            return chromosome
+        chromosome = ChromosomeSubset(chrom, self)
+        self._chroms[chrom] = chromosome
+        return chromosome
 
 
 class CDNACoord:
@@ -324,5 +319,4 @@ class CDNACoord:
         """
         if self.landmark != CDNA_START_CODON:
             return f"CDNACoord({self.coord}, {self.offset}, '{self.landmark}')"
-        else:
-            return f"CDNACoord({self.coord}, {self.offset})"
+        return f"CDNACoord({self.coord}, {self.offset})"

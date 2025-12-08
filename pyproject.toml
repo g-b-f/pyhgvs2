@@ -43,6 +43,11 @@ extend-select = [
     "UP",   # pyupgrade
     "ISC",  # String concatenation
     "ICN",  # Import conventions
+    "RET",  # Return conventions
+]
+
+ignore = [
+    "RET503",  # Explicit return
 ]
 
 [tool.pytest.ini_options]

@@ -87,8 +87,7 @@ def get_utr5p_size(transcript: Transcript):
 
     if transcript_strand:
         return cdna_len + (start_codon - exon_start)
-    else:
-        return cdna_len + (exon_end - start_codon - 1)
+    return cdna_len + (exon_end - start_codon - 1)
 
 
 def find_stop_codon(exons: list["Exon"], cds_position: Position):
@@ -105,10 +104,8 @@ def find_stop_codon(exons: list["Exon"], cds_position: Position):
         if exon_start <= stop_pos <= exon_stop:
             if cds_position.is_forward_strand:
                 return cdna_pos + stop_pos - exon_start
-            else:
-                return cdna_pos + exon_stop - stop_pos
-        else:
-            cdna_pos += exon_stop - exon_start
+            return cdna_pos + exon_stop - stop_pos
+        cdna_pos += exon_stop - exon_start
     raise ValueError("Stop codon is not in any of the exons")
 
 
@@ -120,8 +117,7 @@ def get_genomic_sequence(genome: GenomeType, chrom: str, start: int, end: int):
     """
     if start > end:
         return ""
-    else:
-        return str(genome[str(chrom)][start - 1 : end]).upper()
+    return str(genome[str(chrom)][start - 1 : end]).upper()
 
 
 def cdna_to_genomic_coord(transcript: Transcript, coord: CDNACoord):
@@ -153,8 +149,7 @@ def cdna_to_genomic_coord(transcript: Transcript, coord: CDNACoord):
     if pos < 1:
         if transcript_strand:
             return transcript.tx_position.chrom_start + pos
-        else:
-            return transcript.tx_position.chrom_stop - pos + 1
+        return transcript.tx_position.chrom_stop - pos + 1
 
     # Walk along transcript until we find an exon that contains pos.
     cdna_start = 1
@@ -170,16 +165,14 @@ def cdna_to_genomic_coord(transcript: Transcript, coord: CDNACoord):
         # 3' flanking sequence
         if transcript_strand:
             return transcript.cds_position.chrom_stop + coord.coord
-        else:
-            return transcript.cds_position.chrom_start + 1 - coord.coord
+        return transcript.cds_position.chrom_start + 1 - coord.coord
 
     # Compute genomic coordinate using offset.
     if transcript_strand:
         # Plus strand.
         return exon_start + (pos - cdna_start) + coord.offset
-    else:
-        # Minus strand.
-        return exon_end - (pos - cdna_start) - coord.offset
+    # Minus strand.
+    return exon_end - (pos - cdna_start) - coord.offset
 
 
 def genomic_to_cdna_coord(

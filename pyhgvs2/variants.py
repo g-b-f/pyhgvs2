@@ -37,11 +37,10 @@ def get_sequence(
 
     if start >= end:
         return ""
-    else:
-        seq = genome[chrom][start:end]
-        if not is_forward_strand:
-            seq = -seq
-        return str(seq).upper()
+    seq = genome[chrom][start:end]
+    if not is_forward_strand:
+        seq = -seq
+    return str(seq).upper()
 
 
 def get_sequence_from_position(genome, position: Position) -> str:
