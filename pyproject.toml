@@ -41,6 +41,8 @@ extend-select = [
     "G",    # Logging formatting
     "I",    # isort
     "UP",   # pyupgrade
+    "ISC",  # String concatenation
+    "ICN",  # Import conventions
 ]
 
 [tool.pytest.ini_options]
