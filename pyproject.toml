@@ -46,11 +46,13 @@ extend-select = [
     "RET",  # Return conventions
     "FURB", # refurb
     "B",    # flake8-bugbear
+    "TCH",  # Type checking
 ]
 
 ignore = [
     "RET503",  # Explicit return
-    "B007"     # Unused loop control variable
+    "B007",    # Unused loop control variable
+    "TC006",   # Quote type casting
 ]
 
 [tool.pytest.ini_options]
